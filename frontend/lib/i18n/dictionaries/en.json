@@ -1,0 +1,83 @@
+{
+  "announcement": {
+    "freeShipping": "Free shipping on orders over $50",
+    "promo": "New: The Glow Edit is live —",
+    "promoLink": "Shop now",
+    "returns": "Easy returns"
+  },
+  "nav": {
+    "shopAll": "Shop All",
+    "skincare": "Skincare",
+    "makeup": "Makeup",
+    "hairCare": "Hair Care",
+    "beautyTools": "Beauty Tools",
+    "journal": "Journal",
+    "sale": "Sale",
+    "searchPlaceholder": "Search serums, dryers…",
+    "account": "Account",
+    "wishlist": "Wishlist",
+    "bag": "Bag"
+  },
+  "hero": {
+    "eyebrow": "Eid Glow Collection 2026",
+    "titlePrefix": "Beauty made ",
+    "titleAccent": "effortless",
+    "titleSuffix": ", fashion made personal.",
+    "subtitle": "Curated skincare, makeup, hair care, and beauty tools — vetted with the same rigorous care as our buying guides, so you only buy what works.",
+    "ctaShop": "Shop the Collection",
+    "ctaRoutine": "Find Your Routine",
+    "stat1": "100% Authentic Brands",
+    "stat2": "Dermatologist Tested",
+    "stat3": "24–48h Dispatch"
+  },
+  "categories": {
+    "title": "Shop by Category",
+    "skincare": "Skincare",
+    "makeup": "Makeup",
+    "hairCare": "Hair Care",
+    "beautyTools": "Beauty Tools",
+    "fragrance": "Fragrance",
+    "bathBody": "Bath & Body"
+  },
+  "products": {
+    "trending": "Trending Now",
+    "bestSellers": "Bestsellers",
+    "newArrivals": "New Arrivals",
+    "addToBag": "Add to Bag",
+    "quickView": "Quick View",
+    "rating": "Rating",
+    "reviews": "reviews",
+    "was": "was",
+    "inStock": "In Stock",
+    "sale": "Sale",
+    "cod": "Cash on Delivery Available"
+  },
+  "routine": {
+    "eyebrow": "Personalized Beauty",
+    "title": "Build your holy-grail routine in 3 steps",
+    "step1": "1. Identify Skin Concern",
+    "step2": "2. Select Active Treatments",
+    "step3": "3. Lock in Hydration & SPF"
+  },
+  "trust": {
+    "authenticTitle": "100% Genuine Products",
+    "authenticDesc": "Directly sourced from authorized brand distributors.",
+    "shippingTitle": "Fast & Reliable Shipping",
+    "shippingDesc": "Tracked delivery straight to your doorstep.",
+    "supportTitle": "Dedicated Beauty Support",
+    "supportDesc": "Expert guidance for your skin and hair routine.",
+    "secureTitle": "Secure Checkout",
+    "secureDesc": "Protected with bank-grade 256-bit SSL encryption."
+  },
+  "footer": {
+    "about": "ABeauty & Fashion is your trusted single-vendor destination for premium multi-brand beauty, skincare, and fashion essentials.",
+    "explore": "Explore",
+    "customerCare": "Customer Care",
+    "legal": "Legal & Terms",
+    "newsletterTitle": "Join the Glow Club",
+    "newsletterSubtitle": "Subscribe for early access to sales, skincare tips, and exclusive drops.",
+    "newsletterPlaceholder": "Enter your email address",
+    "subscribe": "Subscribe",
+    "rights": "All rights reserved. Webtricker LLC."
+  }
+}

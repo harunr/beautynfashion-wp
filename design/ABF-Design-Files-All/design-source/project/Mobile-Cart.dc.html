@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Your bag (Mobile)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&amp;family=DM+Sans:wght@400;500;600;700&amp;family=Instrument+Serif:ital@0;1&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1F1219;text-decoration:none}a:hover{color:#C8325F}
+.ab{font-family:'DM Sans',system-ui,sans-serif;color:#1F1219;background:#fff;-webkit-font-smoothing:antialiased}
+.d{font-family:'Bricolage Grotesque',system-ui,sans-serif;letter-spacing:-0.03em;font-weight:700}
+.s{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:52px;padding:0 22px;border-radius:999px;background:#1F1219;color:#fff;font:600 15px/1 'DM Sans',sans-serif;border:0;cursor:pointer;text-decoration:none;box-sizing:border-box}
+.btn:hover{color:#fff}
+.btn.rose{background:#C8325F}
+.btn.ghost{background:transparent;color:#1F1219;box-shadow:inset 0 0 0 1.5px #1F1219}
+.icb{width:44px;height:44px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:0;color:#1F1219;cursor:pointer;position:relative;padding:0}
+.ph{position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:16px}
+.mut{color:#6E5A63}
+.price{font-weight:700;font-size:15px}
+.row{display:flex;justify-content:space-between;font-size:15px}
+</style>
+</helmet>
+<div class="ab" style="width: 390px; height: 1100px; display: flex; flex-direction: column; overflow: hidden">
+
+<header style="height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 8px 0 16px; border-bottom: 1px solid #F1E4E8">
+<h1 class="d" style="margin: 0; font-size: 24px">Your <span class="s" style="color: #C8325F">bag</span> <span class="mut" style="font-size: 16px; font-weight: 500; letter-spacing: 0">(2)</span></h1>
+<a class="icb" href="Mobile-Product.dc.html" aria-label="Close bag"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></a>
+</header>
+
+<div style="margin: 16px; background: #FCEEF1; border-radius: 18px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 14px">You're <strong>$6.00</strong> away from <strong>free shipping</strong></span>
+<div style="height: 6px; border-radius: 6px; background: #fff" role="progressbar" aria-label="Progress to free shipping" aria-valuenow="88" aria-valuemin="0" aria-valuemax="100"><div style="width: 88%; height: 100%; background: #C8325F; border-radius: 6px"></div></div>
+</div>
+
+<section style="padding: 0 16px; display: flex; flex-direction: column">
+<sc-for list="{{items}}" as="i" hint-placeholder-count="2">
+<div style="display: flex; gap: 14px; padding: 16px 0; border-bottom: 1px solid #F1E4E8">
+<div class="ph" style="width: 96px; height: 116px; background: {{i.tint}}; flex: none"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#8C6676" stroke-width="1" aria-hidden="true"><rect x="10" y="2" width="4" height="3" rx=".5"></rect><path d="M9 5h6v1.5c1.2.6 2 1.8 2 3.2V20a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V9.7c0-1.4.8-2.6 2-3.2z"></path></svg></div>
+<div style="flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0">
+<div style="display: flex; justify-content: space-between; gap: 8px"><a href="Mobile-Product.dc.html" style="font-weight: 700; font-size: 15px; line-height: 1.3">{{i.name}}</a><button class="icb" aria-label="Remove item" style="width: 32px; height: 32px; flex: none; margin: -4px -6px 0 0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button></div>
+<span class="mut" style="font-size: 13px">{{i.variant}}</span>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto">
+<div style="display: flex; align-items: center; height: 40px; border: 1.5px solid #EADBE0; border-radius: 999px"><button class="icb" aria-label="Decrease quantity" style="width: 38px; height: 38px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"></path></svg></button><span style="width: 18px; text-align: center; font-weight: 700; font-size: 14px">{{i.qty}}</span><button class="icb" aria-label="Increase quantity" style="width: 38px; height: 38px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button></div>
+<span class="price">{{i.total}}</span>
+</div>
+</div>
+</div>
+</sc-for>
+<label style="display: flex; gap: 10px; align-items: center; font-size: 14px; padding: 16px 0; cursor: pointer"><input type="checkbox" style="width: 18px; height: 18px; accent-color: #C8325F; margin: 0">Add gift wrap &amp; note (+$4.00)</label>
+</section>
+
+<section style="padding: 12px 0 24px 16px">
+<h2 class="d" style="margin: 0 0 12px; font-size: 20px">Add $6 for <span class="s" style="color: #C8325F">free shipping</span></h2>
+<div style="display: flex; gap: 10px; overflow-x: auto; padding-right: 16px">
+<sc-for list="{{recs}}" as="p" hint-placeholder-count="3">
+<div style="width: 250px; flex: none; display: flex; gap: 12px; align-items: center; padding: 10px; border: 1px solid #F1E4E8; border-radius: 18px">
+<div class="ph" style="width: 60px; height: 72px; border-radius: 12px; background: {{p.tint}}; flex: none"></div>
+<div style="flex: 1; display: flex; flex-direction: column; gap: 4px"><span style="font-weight: 600; font-size: 13px; line-height: 1.3">{{p.name}}</span><div style="display: flex; justify-content: space-between; align-items: center"><span class="price">{{p.price}}</span><button class="btn" style="height: 32px; padding: 0 12px; font-size: 12px">Add</button></div></div>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section style="padding: 0 16px 24px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; gap: 8px"><input aria-label="Coupon code" placeholder="Coupon code" style="flex: 1; min-width: 0; height: 48px; border: 1px solid #E3D3D9; border-radius: 14px; padding: 0 14px; font: 400 15px 'DM Sans', sans-serif; color: #1F1219"><button class="btn ghost" style="height: 48px; padding: 0 18px; font-size: 14px">Apply</button></div>
+<div class="row"><span class="mut">Subtotal</span><span style="font-weight: 600">$44.00</span></div>
+<div class="row"><span class="mut">Shipping</span><span>At checkout</span></div>
+<div class="row" style="padding-top: 14px; border-top: 1px solid #F1E4E8; align-items: baseline"><span style="font-weight: 700; font-size: 17px">Total</span><span class="d" style="font-size: 28px">$44.00</span></div>
+</section>
+
+<div style="margin-top: auto; position: sticky; bottom: 0; background: #fff; border-top: 1px solid #F1E4E8; padding: 14px 16px 22px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 -16px 32px -24px rgba(58,24,48,.35)">
+<a class="btn rose" href="Mobile-Checkout.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>Checkout · $44.00</a>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px"><button class="btn" style="height: 46px; background: #FFC439; color: #1F1219; font-weight: 800">PayPal</button><button class="btn" style="height: 46px; background: #000">Apple Pay</button></div>
+<span class="mut" style="font-size: 12px; text-align: center">Secure checkout · Easy returns on unopened items</span>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      items: [
+        { name: 'Rose Dew Hydrating Serum', variant: 'Size: 30 ml', qty: 1, total: '$28.00', tint: '#FBE4EA' },
+        { name: 'Velvet Matte Lip Tint', variant: 'Shade: Rosewood', qty: 1, total: '$16.00', tint: '#F6D7E0' }
+      ],
+      recs: [
+        { name: 'Bamboo Detangling Brush', price: '$14', tint: '#E2EEE5' },
+        { name: 'Calming Cica Toner', price: '$17', tint: '#E2ECF6' },
+        { name: 'Silk Scrunchie Set', price: '$12', tint: '#ECE4F6' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

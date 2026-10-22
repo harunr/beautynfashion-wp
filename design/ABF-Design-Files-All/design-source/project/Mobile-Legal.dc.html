@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Privacy Policy and Terms (Mobile)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&amp;family=DM+Sans:wght@400;500;600;700&amp;family=Instrument+Serif:ital@0;1&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1F1219;text-decoration:none}
+.ab{font-family:'DM Sans',system-ui,sans-serif;color:#1F1219;background:#fff;-webkit-font-smoothing:antialiased}
+.d{font-family:'Bricolage Grotesque',system-ui,sans-serif;letter-spacing:-0.03em;font-weight:700}
+.s{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400}
+.btn{display:inline-flex;align-items:center;justify-content:center;height:48px;padding:0 20px;border-radius:999px;background:#1F1219;color:#fff;font:600 14px/1 'DM Sans',sans-serif;text-decoration:none}
+.icb{width:44px;height:44px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:0;color:#1F1219;position:relative;padding:0}
+.mut{color:#6E5A63}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#C8325F}
+.tab{height:42px;border:0;border-radius:999px;font:600 14px 'DM Sans',sans-serif;cursor:pointer;background:transparent;color:#6E5A63}
+.tab.on{background:#fff;color:#1F1219;box-shadow:0 2px 8px rgba(42,18,32,.08)}
+.acc{border-top:1px solid #F1E4E8;padding:16px 0}
+.acc summary{display:flex;gap:12px;align-items:baseline;font-weight:700;font-size:16px;list-style:none;cursor:pointer}
+.acc summary::-webkit-details-marker{display:none}
+.acc p{margin:12px 0 0;font-size:15px;line-height:1.65;color:#3E2C35}
+.fl{color:#E6D3DA;font-size:14px}
+</style>
+</helmet>
+<div class="ab" style="width: 390px; height: 1600px; display: flex; flex-direction: column; overflow: hidden">
+
+<header style="height: 60px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 8px; background: #fff; border-bottom: 1px solid #F1E4E8">
+<a class="icb" href="Mobile-Menu.dc.html" aria-label="Open menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"></path></svg></a>
+<a href="Mobile-Home.dc.html" aria-label="ABeauty and Fashion home"><img src="/_blob/c27a0df3d15979b74bbdb4201970bba0" alt="ABeauty &amp; Fashion" style="height: 36px; display: block"></a>
+<div style="display: flex; justify-content: flex-end"><a class="icb" href="Mobile-Cart.dc.html" aria-label="Bag, 2 items"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1 12H6z"></path><path d="M9 8V6a3 3 0 0 1 6 0v2"></path></svg></a></div>
+</header>
+
+<section style="background: #FCEEF1; padding: 28px 16px 20px; display: flex; flex-direction: column; gap: 12px">
+<span class="eyebrow">Legal</span>
+<h1 class="d" style="margin: 0; font-size: 40px; line-height: 1">{{title1}} <span class="s" style="color: #C8325F">{{title2}}</span></h1>
+<span class="mut" style="font-size: 13px">Last updated: [Effective date]</span>
+<div role="tablist" aria-label="Legal pages" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: #F6DDE4; border-radius: 999px; padding: 4px; margin-top: 6px">
+<button role="tab" class="{{privCls}}" aria-selected="{{isPriv}}" onClick="{{showPriv}}">Privacy Policy</button>
+<button role="tab" class="{{termsCls}}" aria-selected="{{isTerms}}" onClick="{{showTerms}}">Terms</button>
+</div>
+</section>
+
+<section style="padding: 20px 16px 28px">
+<p class="mut" style="margin: 0 0 12px; font-size: 15px; line-height: 1.6">{{intro}}</p>
+<sc-for list="{{sections}}" as="sec" hint-placeholder-count="11">
+<details class="acc" open="{{sec.open}}"><summary><span class="s" style="color: #C8325F; font-size: 20px; flex: none">{{sec.n}}</span><span style="flex: 1">{{sec.t}}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="flex: none; align-self: center"><path d="m6 9 6 6 6-6"></path></svg></summary><p>{{sec.p}}</p></details>
+</sc-for>
+<div style="margin-top: 24px; padding: 20px; border-radius: 20px; background: #FFF7F8; display: flex; flex-direction: column; gap: 10px"><strong>Questions?</strong><span class="mut" style="font-size: 14px">Email [support@abeautynfashion.com]</span><a class="btn" href="Mobile-Contact.dc.html">Contact us</a></div>
+</section>
+
+<footer style="margin-top: auto; background: #2A1220; color: #F5E9ED; padding: 28px 16px; display: flex; flex-direction: column; gap: 14px">
+<span class="d" style="font-size: 22px; color: #fff">ABeauty <span class="s" style="color: #F4A9C0">&amp;</span> Fashion</span>
+<div style="display: flex; gap: 18px; flex-wrap: wrap"><a class="fl" href="Mobile-About.dc.html">About</a><a class="fl" href="Mobile-Contact.dc.html">Contact</a><a class="fl" href="Mobile-Legal.dc.html">Privacy</a><a class="fl" href="Mobile-Legal.dc.html">Terms</a></div>
+<span style="font-size: 12px; color: #D9C3CC">© 2026 ABeauty &amp; Fashion</span>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1600}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { tab: 'privacy' }; }
+  renderVals() {
+    const priv = this.state.tab === 'privacy';
+    const PRIV = [
+      ['Who we are', '[Company legal name] operates abeautynfashion.com. Contact: [privacy@abeautynfashion.com], [business address].'],
+      ['Information we collect', 'Name, email, phone, addresses, order details, reviews and messages — plus device, browser and usage data collected through cookies.'],
+      ['How we use it', 'To process and deliver orders, support you, prevent fraud, improve the store and — only with consent — send marketing.'],
+      ['Cookies', 'Essential cookies run the cart and checkout. Analytics and marketing cookies are used only if you accept them.'],
+      ['Payments', 'Handled by our payment providers ([e.g. Stripe, PayPal, bKash]). We never store your full card number.'],
+      ['Sharing', 'Only with providers that help run the store — payments, delivery, email, analytics. We never sell your data.'],
+      ['Retention', 'Order records are kept for [retention period] for tax purposes; other data is deleted when no longer needed.'],
+      ['Your rights', 'Access, correct, delete or export your data and opt out of marketing at any time.'],
+      ['Security', 'HTTPS encryption, secure payment gateways and access controls protect your data.'],
+      ['Children', 'Our store is not directed at children under [13/16].'],
+      ['Changes', 'The "Last updated" date shows when this policy last changed.']
+    ];
+    const TERMS = [
+      ['Overview', 'These terms govern your use of abeautynfashion.com, operated by [Company legal name].'],
+      ['Your account', 'Keep your login safe. You must be [18]+ or have a guardian’s permission to order.'],
+      ['Products & pricing', 'Prices are in [currency] and may change; the price at checkout is final. Shades may vary on screen.'],
+      ['Orders & payment', 'An order is confirmed by email. We may cancel for pricing errors, fraud or stock issues and refund in full.'],
+      ['Shipping', 'Delivery times are estimates. Rates and regions are on our Shipping page.'],
+      ['Returns & refunds', 'Unopened, unused items within [X] days. Damaged or wrong items: report within [X] days with a photo.'],
+      ['Coupons', 'Not exchangeable for cash; may have expiry dates or minimum spend.'],
+      ['Reviews', 'Must be honest and your own. We may remove offensive or misleading content.'],
+      ['Journal & affiliate links', 'General information, not medical advice. Some links are affiliate links.'],
+      ['Intellectual property', 'Site content belongs to ABeauty & Fashion or its licensors.'],
+      ['Liability', 'We are not liable for indirect losses; your statutory rights are unaffected.'],
+      ['Governing law', 'Governed by the laws of [jurisdiction].'],
+      ['Changes', 'Orders follow the terms in force when placed.'],
+      ['Contact', '[support@abeautynfashion.com] · [business address]']
+    ];
+    const list = priv ? PRIV : TERMS;
+    return {
+      title1: priv ? 'Privacy' : 'Terms &',
+      title2: priv ? 'Policy' : 'Conditions',
+      intro: priv ? 'How we collect, use and protect your personal information.' : 'The rules that apply to every order on abeautynfashion.com.',
+      isPriv: priv, isTerms: !priv,
+      privCls: priv ? 'tab on' : 'tab', termsCls: priv ? 'tab' : 'tab on',
+      showPriv: () => this.setState({ tab: 'privacy' }),
+      showTerms: () => this.setState({ tab: 'terms' }),
+      sections: list.map(([t, p], i) => ({ t, p, n: String(i + 1).padStart(2, '0'), open: i === 0 }))
+    };
+  }
+}
+</script>
+</body>
+</html>

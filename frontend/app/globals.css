@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #1F1219;
+  --plum-900: #2A1220;
+  --plum-800: #3A1830;
+  --plum-700: #52283F;
+  --rose: #C8325F;
+  --rose-dark: #A3244B;
+  --rose-light: #F4A9C0;
+  --blush-50: #FFF7F8;
+  --blush-100: #FCEEF1;
+  --blush-200: #F6D7E0;
+  --line: #F1E4E8;
+  --line-strong: #EADBE0;
+  --muted: #6E5A63;
+  --strike: #7A6570;
+  --success: #2E6B45;
+  --success-bg: #E4F2E9;
+}
+
+body {
+  color: var(--ink);
+  background: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Accessible focus styling */
+:focus-visible {
+  outline: 2px solid #C8325F;
+  outline-offset: 2px;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

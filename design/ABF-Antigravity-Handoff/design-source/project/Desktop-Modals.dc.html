@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Modals and popups (Desktop)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&amp;family=DM+Sans:wght@400;500;600;700&amp;family=Instrument+Serif:ital@0;1&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1F1219;text-decoration:none}a:hover{color:#C8325F}
+.ab{font-family:'DM Sans',system-ui,sans-serif;color:#1F1219;background:#F4ECEF;-webkit-font-smoothing:antialiased}
+.d{font-family:'Bricolage Grotesque',system-ui,sans-serif;letter-spacing:-0.03em;font-weight:700}
+.s{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;letter-spacing:-0.01em}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:50px;padding:0 24px;border-radius:999px;background:#1F1219;color:#fff;font:600 15px/1 'DM Sans',sans-serif;border:0;cursor:pointer;text-decoration:none;box-sizing:border-box}
+.btn:hover{background:#C8325F;color:#fff}
+.btn.rose{background:#C8325F}.btn.rose:hover{background:#A3244B}
+.btn.ghost{background:transparent;color:#1F1219;box-shadow:inset 0 0 0 1.5px #1F1219}
+.icb{width:44px;height:44px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:0;color:#1F1219;cursor:pointer;padding:0}
+.icb:hover{background:#FCEEF1}
+.mut{color:#6E5A63}
+.cap{font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#6E5A63;margin-bottom:12px;display:block}
+.scrim{height:600px;border-radius:28px;background:#5B4752;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.md{background:#fff;border-radius:28px;box-shadow:0 40px 80px -30px rgba(20,8,14,.6);position:relative;box-sizing:border-box}
+.x{position:absolute;right:12px;top:12px}
+.ok{width:72px;height:72px;border-radius:999px;background:#FCEEF1;color:#C8325F;display:flex;align-items:center;justify-content:center}
+.f{height:50px;border:1px solid #E3D3D9;border-radius:14px;padding:0 16px;font:400 15px 'DM Sans',sans-serif;color:#1F1219;background:#fff;width:100%;box-sizing:border-box}
+.l{font-size:13px;font-weight:600;display:block;margin-bottom:6px}
+.row{display:flex;justify-content:space-between;font-size:14px}
+</style>
+</helmet>
+<div class="ab" style="width: 1440px; height: 2560px; padding: 56px; box-sizing: border-box; display: flex; flex-direction: column; gap: 40px">
+
+<div style="display: flex; justify-content: space-between; align-items: end">
+<h1 class="d" style="margin: 0; font-size: 56px">Modals &amp; <span class="s" style="color: #C8325F">popups</span></h1>
+<span class="mut" style="font-size: 15px">Shown over a dimmed page · close on ✕, Esc or backdrop click</span>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px 32px">
+
+<div><span class="cap">01 · Added to bag</span>
+<div class="scrim">
+<div class="md" role="dialog" aria-labelledby="m1" style="width: 480px; padding: 28px; display: flex; flex-direction: column; gap: 18px">
+<button class="icb x" aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+<h2 id="m1" style="margin: 0; display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700"><span style="width: 28px; height: 28px; border-radius: 999px; background: #E4F2E9; color: #2E6B45; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"></path></svg></span>Added to your bag</h2>
+<div style="display: flex; gap: 16px; align-items: center"><div style="width: 84px; height: 100px; border-radius: 16px; background: #FBE4EA; flex: none"></div><div style="display: flex; flex-direction: column; gap: 4px"><strong>Rose Dew Hydrating Serum</strong><span class="mut" style="font-size: 14px">30 ml · Qty 1</span><strong>$28.00</strong></div></div>
+<div style="background: #FCEEF1; border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; font-size: 14px"><span>Add <strong>$6.00</strong> more for free shipping</span><div style="height: 6px; border-radius: 6px; background: #fff"><div style="width: 88%; height: 100%; border-radius: 6px; background: #C8325F"></div></div></div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px"><a class="btn ghost" href="Desktop-Cart.dc.html">View bag (2)</a><a class="btn rose" href="Desktop-Checkout.dc.html">Checkout</a></div>
+<button style="border: 0; background: none; font: 600 14px 'DM Sans', sans-serif; text-decoration: underline; cursor: pointer; color: #1F1219">Continue shopping</button>
+</div>
+</div></div>
+
+<div><span class="cap">02 · Order confirmed (thank you)</span>
+<div class="scrim">
+<div class="md" role="dialog" aria-labelledby="m2" style="width: 520px; padding: 36px; display: flex; flex-direction: column; gap: 16px; align-items: center; text-align: center">
+<div class="ok"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"></path></svg></div>
+<h2 id="m2" class="d" style="margin: 0; font-size: 36px; line-height: 1">Thank you, <span class="s" style="color: #C8325F">[Name]!</span></h2>
+<p class="mut" style="margin: 0; font-size: 15px; line-height: 1.55">Your order <strong style="color: #1F1219">#[1042]</strong> is confirmed. We've sent the details to [customer@email.com].</p>
+<div style="width: 100%; background: #FFF7F8; border-radius: 18px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; text-align: left">
+<div class="row"><span class="mut">Items</span><span>2</span></div>
+<div class="row"><span class="mut">Delivery</span><span>Standard · 3–5 days</span></div>
+<div class="row"><span class="mut">Payment</span><span>Visa ···· [4242]</span></div>
+<div class="row" style="padding-top: 10px; border-top: 1px solid #F1E4E8"><strong>Total paid</strong><strong>$48.99</strong></div>
+</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%"><a class="btn ghost" href="Desktop-Account.dc.html">Track order</a><a class="btn" href="Desktop-Shop.dc.html">Keep shopping</a></div>
+</div>
+</div></div>
+
+<div><span class="cap">03 · Newsletter subscribed</span>
+<div class="scrim">
+<div class="md" role="dialog" aria-labelledby="m3" style="width: 440px; overflow: hidden">
+<button class="icb x" aria-label="Close" style="z-index: 1; background: #fff"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+<div style="height: 150px; background: #F6D7E0; display: flex; align-items: center; justify-content: center"><span class="s" style="font-size: 64px; color: #C8325F">Glow</span></div>
+<div style="padding: 28px 32px 32px; display: flex; flex-direction: column; gap: 12px; text-align: center">
+<h2 id="m3" class="d" style="margin: 0; font-size: 30px">You're on the <span class="s" style="color: #C8325F">Glow List</span></h2>
+<p class="mut" style="margin: 0; font-size: 15px; line-height: 1.55">Check your inbox to confirm your email. Your first routine tips are on the way.</p>
+<a class="btn" href="Desktop-Shop.dc.html" style="margin-top: 6px">Start shopping</a>
+</div>
+</div>
+</div></div>
+
+<div><span class="cap">04 · Contact message sent</span>
+<div class="scrim">
+<div class="md" role="dialog" aria-labelledby="m4" style="width: 440px; padding: 36px; display: flex; flex-direction: column; gap: 14px; align-items: center; text-align: center">
+<button class="icb x" aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+<div class="ok"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"></path></svg></div>
+<h2 id="m4" class="d" style="margin: 0; font-size: 30px">Message <span class="s" style="color: #C8325F">sent</span></h2>
+<p class="mut" style="margin: 0; font-size: 15px; line-height: 1.55">Thanks for reaching out. We'll reply to [email] within [response time]. Your reference is <strong style="color: #1F1219">#[T-2081]</strong>.</p>
+<a class="btn" href="Main.dc.html" style="margin-top: 6px; width: 100%">Back to home</a>
+</div>
+</div></div>
+
+<div><span class="cap">05 · Sign in / Create account</span>
+<div class="scrim">
+<div class="md" role="dialog" aria-labelledby="m5" style="width: 460px; padding: 32px; display: flex; flex-direction: column; gap: 16px">
+<button class="icb x" aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+<h2 id="m5" class="d" style="margin: 0; font-size: 30px">Welcome <span class="s" style="color: #C8325F">back</span></h2>
+<div role="tablist" style="display: grid; grid-template-columns: 1fr 1fr; background: #F8F1F3; border-radius: 999px; padding: 4px"><button role="tab" aria-selected="true" style="height: 40px; border: 0; border-radius: 999px; background: #fff; font: 700 14px 'DM Sans', sans-serif; box-shadow: 0 2px 6px rgba(0,0,0,.06)">Sign in</button><button role="tab" aria-selected="false" style="height: 40px; border: 0; border-radius: 999px; background: transparent; font: 600 14px 'DM Sans', sans-serif; color: #6E5A63">Create account</button></div>
+<div><label class="l" for="se">Email</label><input class="f" id="se" type="email"></div>
+<div><label class="l" for="sp">Password</label><input class="f" id="sp" type="password"></div>
+<div style="display: flex; justify-content: space-between; font-size: 14px"><label style="display: flex; gap: 8px; align-items: center"><input type="checkbox" style="accent-color: #C8325F; width: 16px; height: 16px; margin: 0">Remember me</label><a href="Desktop-Account.dc.html" style="text-decoration: underline">Forgot password?</a></div>
+<a class="btn" href="Desktop-Account.dc.html">Sign in</a>
+<button class="btn ghost" style="box-shadow: inset 0 0 0 1px #D9C6CE">Continue with Google</button>
+</div>
+</div></div>
+
+<div><span class="cap">06 · Quick view</span>
+<div class="scrim">
+<div class="md" role="dialog" aria-labelledby="m6" style="width: 620px; padding: 20px; display: grid; grid-template-columns: 240px 1fr; gap: 24px">
+<button class="icb x" aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+<div style="height: 340px; border-radius: 20px; background: #E2ECF6; display: flex; align-items: center; justify-content: center"><span style="font-size: 11px; font-weight: 700; letter-spacing: .08em; color: #4A5A6E">PRODUCT PHOTO</span></div>
+<div style="display: flex; flex-direction: column; gap: 12px; padding: 12px 8px 0 0">
+<span style="font-size: 12px; font-weight: 700; letter-spacing: .14em; color: #C8325F">BEAUTY TOOLS</span>
+<h2 id="m6" class="d" style="margin: 0; font-size: 26px; line-height: 1.1">Nano Ionic Facial Steamer</h2>
+<div style="display: flex; gap: 10px; align-items: baseline"><strong style="font-size: 24px">$49.00</strong><span style="text-decoration: line-through; color: #7A6570">$65.00</span></div>
+<p class="mut" style="margin: 0; font-size: 14px; line-height: 1.55">Warm nano-mist opens pores before cleansing. Featured in our facial steamer buying guide.</p>
+<div style="display: flex; gap: 10px; margin-top: auto"><a class="btn rose" href="Desktop-Cart.dc.html" style="flex: 1">Add to bag</a><button class="icb" aria-label="Add to wishlist" style="width: 50px; height: 50px; box-shadow: inset 0 0 0 1.5px #EADBE0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"></path></svg></button></div>
+<a href="Desktop-Product.dc.html" style="font-size: 14px; font-weight: 600; text-decoration: underline">View full details</a>
+</div>
+</div>
+</div></div>
+
+<div style="grid-column: span 2"><span class="cap">07 · Cookie consent (bottom bar)</span>
+<div class="scrim" style="height: 220px; align-items: flex-end; padding: 24px">
+<div class="md" role="dialog" aria-labelledby="m7" style="width: 100%; padding: 24px 28px; display: flex; align-items: center; gap: 32px; border-radius: 22px">
+<div style="flex: 1; display: flex; flex-direction: column; gap: 6px"><h2 id="m7" style="margin: 0; font-size: 17px; font-weight: 700">We use cookies</h2><p class="mut" style="margin: 0; font-size: 14px; line-height: 1.5">Essential cookies keep your bag and checkout working. With your OK we also use analytics and marketing cookies. <a href="Desktop-Privacy.dc.html" style="text-decoration: underline; color: #1F1219">Privacy Policy</a></p></div>
+<div style="display: flex; gap: 10px; flex: none"><button class="btn ghost" style="height: 46px; box-shadow: inset 0 0 0 1px #D9C6CE">Settings</button><button class="btn ghost" style="height: 46px">Reject optional</button><button class="btn" style="height: 46px">Accept all</button></div>
+</div>
+</div></div>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2560}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Checkout (Desktop)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&amp;family=DM+Sans:wght@400;500;600;700&amp;family=Instrument+Serif:ital@0;1&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1F1219;text-decoration:none}a:hover{color:#C8325F}
+.ab{font-family:'DM Sans',system-ui,sans-serif;color:#1F1219;background:#FFF9FA;-webkit-font-smoothing:antialiased}
+.d{font-family:'Bricolage Grotesque',system-ui,sans-serif;letter-spacing:-0.03em;font-weight:700}
+.s{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;letter-spacing:-0.01em}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:56px;padding:0 28px;border-radius:999px;background:#1F1219;color:#fff;font:600 16px/1 'DM Sans',sans-serif;border:0;cursor:pointer;text-decoration:none;box-sizing:border-box}
+.btn:hover{background:#C8325F;color:#fff}
+.btn.rose{background:#C8325F}.btn.rose:hover{background:#A3244B}
+.btn.ghost{background:transparent;color:#1F1219;box-shadow:inset 0 0 0 1.5px #1F1219}
+.ph{position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:20px}
+.mut{color:#6E5A63}
+.card{background:#fff;border:1px solid #F1E4E8;border-radius:24px;padding:28px 32px;display:flex;flex-direction:column;gap:18px}
+.h{display:flex;align-items:center;gap:12px;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:22px;letter-spacing:-0.02em;margin:0}
+.num{width:30px;height:30px;border-radius:999px;background:#1F1219;color:#fff;font:700 14px 'DM Sans',sans-serif;display:inline-flex;align-items:center;justify-content:center;letter-spacing:0}
+.l{font-size:13px;font-weight:600;display:block;margin-bottom:6px}
+.f{height:52px;border:1px solid #E3D3D9;border-radius:14px;padding:0 16px;font:400 15px 'DM Sans',sans-serif;color:#1F1219;background:#fff;width:100%;box-sizing:border-box}
+.f:focus{outline:2px solid #C8325F;outline-offset:1px}
+.rad{display:flex;align-items:center;gap:14px;padding:18px 20px;border:1.5px solid #EADBE0;border-radius:16px;cursor:pointer;font-size:15px}
+.rad.on{border-color:#1F1219;background:#FFF7F8}
+.rad input{width:18px;height:18px;accent-color:#C8325F;margin:0}
+.row{display:flex;justify-content:space-between;font-size:15px}
+</style>
+</helmet>
+<div class="ab" style="width: 1440px; height: 2200px; display: flex; flex-direction: column; overflow: hidden">
+
+<header style="height: 84px; display: flex; align-items: center; justify-content: space-between; padding: 0 56px; border-bottom: 1px solid #F1E4E8; background: #fff">
+<a href="Desktop-Cart.dc.html" style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; width: 200px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"></path></svg>Back to bag</a>
+<a href="Main.dc.html" aria-label="ABeauty and Fashion home"><img src="/_blob/c27a0df3d15979b74bbdb4201970bba0" alt="ABeauty &amp; Fashion" style="height: 46px; display: block"></a>
+<span style="display: flex; align-items: center; justify-content: flex-end; gap: 8px; font-size: 14px; font-weight: 600; color: #2E6B45; width: 200px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>Secure checkout</span>
+</header>
+
+<ol aria-label="Checkout progress" style="list-style: none; margin: 0; padding: 28px 56px; display: flex; justify-content: center; align-items: center; gap: 16px; font-size: 14px; font-weight: 600">
+<li style="display: flex; align-items: center; gap: 8px; color: #2E6B45"><span style="width: 26px; height: 26px; border-radius: 999px; background: #E4F2E9; display: flex; align-items: center; justify-content: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"></path></svg></span>Bag</li>
+<li aria-hidden="true" style="width: 64px; height: 1px; background: #E3D3D9"></li>
+<li aria-current="step" style="display: flex; align-items: center; gap: 8px"><span style="width: 26px; height: 26px; border-radius: 999px; background: #1F1219; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px">2</span>Details &amp; delivery</li>
+<li aria-hidden="true" style="width: 64px; height: 1px; background: #E3D3D9"></li>
+<li class="mut" style="display: flex; align-items: center; gap: 8px"><span style="width: 26px; height: 26px; border-radius: 999px; border: 1.5px solid #D9C6CE; display: flex; align-items: center; justify-content: center; font-size: 12px; box-sizing: border-box">3</span>Payment</li>
+<li aria-hidden="true" style="width: 64px; height: 1px; background: #E3D3D9"></li>
+<li class="mut" style="display: flex; align-items: center; gap: 8px"><span style="width: 26px; height: 26px; border-radius: 999px; border: 1.5px solid #D9C6CE; display: flex; align-items: center; justify-content: center; font-size: 12px; box-sizing: border-box">4</span>Confirmation</li>
+</ol>
+
+<section style="padding: 0 56px 64px; display: grid; grid-template-columns: 1fr 460px; gap: 40px; align-items: start; max-width: 1240px; margin: 0 auto; width: 100%; box-sizing: border-box">
+<form style="display: flex; flex-direction: column; gap: 20px">
+<div class="card" style="gap: 14px">
+<span class="mut" style="font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; text-align: center">Express checkout</span>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+<button type="button" class="btn" style="height: 50px; background: #FFC439; color: #1F1219; font-weight: 800">PayPal</button>
+<button type="button" class="btn" style="height: 50px; background: #000">Apple Pay</button>
+<button type="button" class="btn" style="height: 50px; background: #fff; color: #1F1219; box-shadow: inset 0 0 0 1px #D9C6CE">Google Pay</button>
+</div>
+</div>
+
+<div class="card">
+<div style="display: flex; justify-content: space-between; align-items: center"><h2 class="h"><span class="num">1</span>Contact</h2><span class="mut" style="font-size: 14px">Have an account? <a href="Desktop-Account.dc.html" style="font-weight: 600; text-decoration: underline; color: #1F1219">Log in</a></span></div>
+<div><label class="l" for="em">Email address</label><input class="f" id="em" type="email" value="[customer@email.com]"></div>
+<label style="display: flex; gap: 10px; align-items: center; font-size: 14px; cursor: pointer"><input type="checkbox" checked style="width: 18px; height: 18px; accent-color: #C8325F; margin: 0">Email me about new drops and offers</label>
+</div>
+
+<div class="card">
+<h2 class="h"><span class="num">2</span>Shipping address</h2>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px">
+<div><label class="l" for="fn">First name</label><input class="f" id="fn"></div>
+<div><label class="l" for="ln">Last name</label><input class="f" id="ln"></div>
+<div style="grid-column: span 2"><label class="l" for="ad">Street address</label><input class="f" id="ad" placeholder="Start typing your address"></div>
+<div style="grid-column: span 2"><label class="l" for="ap">Apartment, suite, etc. (optional)</label><input class="f" id="ap"></div>
+<div><label class="l" for="ct">City</label><input class="f" id="ct"></div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px">
+<div><label class="l" for="st">State</label><select class="f" id="st"><option>Select</option></select></div>
+<div><label class="l" for="zp">ZIP code</label><input class="f" id="zp"></div>
+</div>
+<div style="grid-column: span 2"><label class="l" for="ph">Phone (for delivery updates)</label><input class="f" id="ph" type="tel"></div>
+</div>
+</div>
+
+<div class="card">
+<h2 class="h"><span class="num">3</span>Delivery method</h2>
+<label class="rad on"><input type="radio" name="ship" checked><span style="flex: 1"><strong>Standard</strong><br><span class="mut" style="font-size: 14px">3–5 business days</span></span><strong>$4.99</strong></label>
+<label class="rad"><input type="radio" name="ship"><span style="flex: 1"><strong>Express</strong><br><span class="mut" style="font-size: 14px">1–2 business days</span></span><strong>$9.99</strong></label>
+<span class="mut" style="font-size: 13px">Delivery times and rates are placeholders — set them in WooCommerce › Shipping zones.</span>
+</div>
+
+<div class="card">
+<h2 class="h"><span class="num">4</span>Payment</h2>
+<label class="rad on" style="flex-wrap: wrap"><input type="radio" name="pay" checked><span style="flex: 1"><strong>Credit or debit card</strong></span><span class="mut" style="font-size: 12px; font-weight: 700">VISA · MC · AMEX</span></label>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; padding: 4px 4px 8px">
+<div style="grid-column: span 2"><label class="l" for="cn">Card number</label><input class="f" id="cn" placeholder="1234 1234 1234 1234"></div>
+<div><label class="l" for="ex">Expiry</label><input class="f" id="ex" placeholder="MM / YY"></div>
+<div><label class="l" for="cv">Security code</label><input class="f" id="cv" placeholder="CVC"></div>
+</div>
+<label class="rad"><input type="radio" name="pay"><span style="flex: 1"><strong>PayPal</strong></span></label>
+<label style="display: flex; gap: 10px; align-items: center; font-size: 14px; cursor: pointer"><input type="checkbox" checked style="width: 18px; height: 18px; accent-color: #C8325F; margin: 0">Billing address same as shipping</label>
+</div>
+<button type="button" class="btn rose" style="height: 60px; font-size: 17px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>Place order — $48.99</button>
+<p class="mut" style="margin: 0; font-size: 13px; text-align: center">By placing your order you agree to our <a href="Main.dc.html" style="text-decoration: underline; color: #1F1219">Terms &amp; Conditions</a> and <a href="Main.dc.html" style="text-decoration: underline; color: #1F1219">Privacy Policy</a>.</p>
+</form>
+
+<aside aria-label="Order summary" class="card" style="gap: 20px">
+<div style="display: flex; justify-content: space-between; align-items: center"><h2 class="h" style="font-size: 24px">Your order</h2><a href="Desktop-Cart.dc.html" style="font-size: 14px; font-weight: 600; text-decoration: underline">Edit</a></div>
+<sc-for list="{{items}}" as="i" hint-placeholder-count="2">
+<div style="display: flex; gap: 16px; align-items: center">
+<div class="ph" style="width: 72px; height: 84px; border-radius: 14px; background: {{i.tint}}; flex: none; overflow: visible"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8C6676" stroke-width="1.1" aria-hidden="true"><rect x="10" y="2" width="4" height="3" rx=".5"></rect><path d="M9 5h6v1.5c1.2.6 2 1.8 2 3.2V20a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V9.7c0-1.4.8-2.6 2-3.2z"></path></svg><span style="position: absolute; top: -8px; right: -8px; width: 24px; height: 24px; border-radius: 999px; background: #1F1219; color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center">1</span></div>
+<div style="flex: 1; display: flex; flex-direction: column; gap: 4px"><span style="font-weight: 600; font-size: 15px">{{i.name}}</span><span class="mut" style="font-size: 13px">{{i.variant}}</span></div>
+<span style="font-weight: 700">{{i.total}}</span>
+</div>
+</sc-for>
+<div style="display: flex; gap: 8px; padding-top: 6px"><input class="f" aria-label="Coupon code" placeholder="Coupon code" style="height: 48px"><button type="button" class="btn ghost" style="height: 48px; padding: 0 20px; font-size: 14px">Apply</button></div>
+<div style="display: flex; flex-direction: column; gap: 12px; padding-top: 18px; border-top: 1px solid #F1E4E8">
+<div class="row"><span class="mut">Subtotal</span><span>$44.00</span></div>
+<div class="row"><span class="mut">Shipping · Standard</span><span>$4.99</span></div>
+<div class="row"><span class="mut">Tax</span><span>Calculated next</span></div>
+</div>
+<div class="row" style="padding-top: 18px; border-top: 1px solid #F1E4E8; align-items: baseline"><span style="font-weight: 700; font-size: 18px">Total</span><span class="d" style="font-size: 32px">$48.99</span></div>
+<div style="display: flex; gap: 12px; align-items: center; background: #FCEEF1; border-radius: 16px; padding: 14px 16px; font-size: 14px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C8325F" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h11v10H3zM14 10h4l3 3v3h-7z"></path><circle cx="7" cy="18" r="1.6"></circle><circle cx="17" cy="18" r="1.6"></circle></svg><span>Add <strong>$6.00</strong> more to get free shipping</span></div>
+<div style="display: flex; flex-direction: column; gap: 10px; font-size: 14px" class="mut">
+<span style="display: flex; gap: 10px; align-items: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C8325F" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"></path><path d="m9 12 2 2 4-4"></path></svg>100% authentic products</span>
+<span style="display: flex; gap: 10px; align-items: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C8325F" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h11a5 5 0 0 1 0 10H8"></path><path d="M8 5 4 9l4 4"></path></svg>Easy returns on unopened items</span>
+</div>
+</aside>
+</section>
+
+<footer style="margin-top: auto; border-top: 1px solid #F1E4E8; padding: 24px 56px; display: flex; justify-content: center; gap: 28px; font-size: 14px; background: #fff">
+<a href="Main.dc.html" class="mut">Shipping policy</a><a href="Main.dc.html" class="mut">Returns</a><a href="Main.dc.html" class="mut">Privacy Policy</a><a href="Main.dc.html" class="mut">Terms &amp; Conditions</a><a href="Main.dc.html" class="mut">Contact</a>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2200}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      items: [
+        { name: 'Rose Dew Hydrating Serum', variant: '30 ml', total: '$28.00', tint: '#FBE4EA' },
+        { name: 'Velvet Matte Lip Tint', variant: 'Rosewood', total: '$16.00', tint: '#F6D7E0' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

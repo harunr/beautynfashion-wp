@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Search results (Desktop)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&amp;family=DM+Sans:wght@400;500;600;700&amp;family=Instrument+Serif:ital@0;1&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1F1219;text-decoration:none}a:hover{color:#C8325F}
+.ab{font-family:'DM Sans',system-ui,sans-serif;color:#1F1219;background:#fff;-webkit-font-smoothing:antialiased}
+.d{font-family:'Bricolage Grotesque',system-ui,sans-serif;letter-spacing:-0.03em;font-weight:700}
+.s{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;letter-spacing:-0.01em}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:48px;padding:0 22px;border-radius:999px;background:#1F1219;color:#fff;font:600 15px/1 'DM Sans',sans-serif;border:0;cursor:pointer;text-decoration:none;box-sizing:border-box}
+.btn.ghost{background:transparent;color:#1F1219;box-shadow:inset 0 0 0 1.5px #1F1219}
+.icb{width:44px;height:44px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:0;color:#1F1219;cursor:pointer;position:relative;padding:0}
+.icb:hover{background:#FCEEF1;color:#1F1219}
+.pill{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 16px;border-radius:999px;border:1px solid #EADBE0;font:500 14px 'DM Sans',sans-serif;background:#fff;color:#1F1219;cursor:pointer}
+.pill.on{background:#1F1219;color:#fff;border-color:#1F1219}
+.ph{position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:20px}
+.phl{position:absolute;left:14px;bottom:14px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#6B4F5B}
+.badge{position:absolute;left:12px;top:12px;height:26px;padding:0 10px;border-radius:999px;background:#fff;font-size:12px;font-weight:700;display:inline-flex;align-items:center;color:#1F1219}
+.badge.sale{background:#C8325F;color:#fff}
+.mut{color:#6E5A63}
+.nav a{font-weight:500;font-size:15px}
+.stars{color:#C8325F}
+.price{font-weight:700;font-size:16px}
+.was{text-decoration:line-through;color:#7A6570;font-size:14px}
+.fl{color:#E6D3DA;font-size:15px}.fl:hover{color:#fff}
+.ck{display:flex;align-items:center;gap:12px;font-size:15px;cursor:pointer}
+.ck input{width:18px;height:18px;accent-color:#C8325F;margin:0}
+.ck .n{margin-left:auto;font-size:13px;color:#6E5A63}
+.fh{font-weight:700;font-size:15px;margin-bottom:12px;display:flex;justify-content:space-between;width:100%}
+mark{background:#FBE4EA;color:inherit;padding:0 2px;border-radius:3px}
+.sw{width:30px;height:30px;border-radius:999px;border:2px solid #fff;box-shadow:0 0 0 1px #EADBE0;cursor:pointer;padding:0}
+</style>
+</helmet>
+<div class="ab" style="width: 1440px; height: 2120px; display: flex; flex-direction: column; overflow: hidden; position: relative">
+
+<header style="height: 84px; display: flex; align-items: center; justify-content: space-between; padding: 0 56px; border-bottom: 1px solid #F1E4E8; background: #fff; gap: 32px">
+<a href="Main.dc.html" aria-label="ABeauty and Fashion home" style="display: flex; align-items: center"><img src="/_blob/c27a0df3d15979b74bbdb4201970bba0" alt="ABeauty &amp; Fashion" style="height: 46px; display: block"></a>
+<form role="search" style="flex: 1; max-width: 640px; position: relative">
+<div style="display: flex; align-items: center; gap: 10px; height: 50px; padding: 0 8px 0 18px; border-radius: 999px; background: #fff; box-shadow: 0 0 0 2px #1F1219">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+<input aria-label="Search products and guides" value="serum" style="border: 0; outline: 0; font: 500 16px 'DM Sans', sans-serif; width: 100%; color: #1F1219; background: transparent">
+<button type="button" class="icb" aria-label="Clear search" style="width: 36px; height: 36px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+</div>
+</form>
+<div style="display: flex; align-items: center; gap: 4px">
+<a class="icb" href="Desktop-Account.dc.html" aria-label="My account"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"></path></svg></a>
+<a class="icb" href="Desktop-Account.dc.html" aria-label="Wishlist"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"></path></svg></a>
+<a class="icb" href="Desktop-Cart.dc.html" aria-label="Bag, 2 items"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1 12H6z"></path><path d="M9 8V6a3 3 0 0 1 6 0v2"></path></svg><span style="position: absolute; top: 4px; right: 2px; min-width: 18px; height: 18px; border-radius: 999px; background: #C8325F; color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center">2</span></a>
+</div>
+</header>
+
+<div role="listbox" aria-label="Search suggestions" style="position: absolute; top: 76px; left: 50%; margin-left: -230px; width: 760px; background: #fff; border-radius: 24px; box-shadow: 0 30px 70px -20px rgba(42,18,32,.35); border: 1px solid #F1E4E8; padding: 20px; display: grid; grid-template-columns: 220px 1fr; gap: 24px; z-index: 5">
+<div style="display: flex; flex-direction: column; gap: 4px; font-size: 15px">
+<span class="mut" style="font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 6px">Suggestions</span>
+<a href="Desktop-Search.dc.html" style="padding: 8px 10px; border-radius: 10px; background: #FCEEF1"><mark>serum</mark> for dry skin</a>
+<a href="Desktop-Search.dc.html" style="padding: 8px 10px"><mark>serum</mark> vitamin c</a>
+<a href="Desktop-Search.dc.html" style="padding: 8px 10px">hair <mark>serum</mark></a>
+<a href="Desktop-Search.dc.html" style="padding: 8px 10px">hyaluronic <mark>serum</mark></a>
+<span class="mut" style="font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; margin: 12px 0 6px">Recent</span>
+<a href="Desktop-Search.dc.html" class="mut" style="padding: 6px 10px">facial steamer</a>
+<a href="Desktop-Search.dc.html" class="mut" style="padding: 6px 10px">silk pillowcase</a>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span class="mut" style="font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase">Products</span>
+<sc-for list="{{quick}}" as="q" hint-placeholder-count="3">
+<a href="Desktop-Product.dc.html" style="display: flex; gap: 14px; align-items: center; padding: 6px; border-radius: 14px"><span style="width: 52px; height: 60px; border-radius: 12px; background: {{q.tint}}; flex: none"></span><span style="flex: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600; font-size: 15px">{{q.name}}</span><span class="mut" style="font-size: 13px">{{q.cat}}</span></span><strong>{{q.price}}</strong></a>
+</sc-for>
+<a href="Main.dc.html#journal" style="display: flex; gap: 12px; align-items: center; padding: 12px; border-radius: 14px; background: #FFF7F8; font-size: 14px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C8325F" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h7a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H4zM20 5h-6"></path></svg><span><strong>Journal:</strong> How to layer a <mark>serum</mark> in your routine</span></a>
+<a href="Desktop-Search.dc.html" style="font-weight: 700; font-size: 14px; text-decoration: underline; padding: 4px 6px">See all 24 results for "serum"</a>
+</div>
+</div>
+
+<section style="padding: 40px 56px 28px; display: flex; flex-direction: column; gap: 18px; border-bottom: 1px solid #F1E4E8; margin-top: 360px">
+<span class="mut" style="font-size: 14px">Search results</span>
+<h1 class="d" style="margin: 0; font-size: 56px; line-height: 1">“serum” <span class="mut" style="font-size: 22px; font-weight: 500; letter-spacing: 0">24 products · 5 articles</span></h1>
+<div role="tablist" style="display: flex; gap: 8px"><button role="tab" aria-selected="true" class="pill on">Products (24)</button><button role="tab" aria-selected="false" class="pill">Journal articles (5)</button></div>
+</section>
+
+<section style="padding: 32px 56px 80px; display: flex; gap: 48px; align-items: flex-start">
+<aside aria-label="Filters" style="width: 272px; flex: none; display: flex; flex-direction: column; gap: 26px">
+<div style="display: flex; justify-content: space-between; align-items: center"><span class="d" style="font-size: 22px">Filter</span><a href="Desktop-Search.dc.html" style="font-size: 14px; font-weight: 600; text-decoration: underline">Clear all</a></div>
+<fieldset style="border: 0; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px"><legend class="fh">Category</legend>
+<label class="ck"><input type="checkbox" checked>Face serums<span class="n">14</span></label>
+<label class="ck"><input type="checkbox">Hair serums<span class="n">6</span></label>
+<label class="ck"><input type="checkbox">Eye serums<span class="n">4</span></label>
+</fieldset>
+<fieldset style="border: 0; padding: 24px 0 0; margin: 0; display: flex; flex-direction: column; gap: 12px; border-top: 1px solid #F1E4E8"><legend class="fh" style="float: left">Skin type</legend>
+<div style="display: flex; flex-wrap: wrap; gap: 8px; clear: both"><button type="button" class="pill on" style="height: 36px">Dry</button><button type="button" class="pill" style="height: 36px">Oily</button><button type="button" class="pill" style="height: 36px">Combination</button><button type="button" class="pill" style="height: 36px">Sensitive</button></div>
+</fieldset>
+<fieldset style="border: 0; padding: 24px 0 0; margin: 0; display: flex; flex-direction: column; gap: 12px; border-top: 1px solid #F1E4E8"><legend class="fh" style="float: left">Key ingredient</legend>
+<label class="ck" style="clear: both"><input type="checkbox" checked>Hyaluronic acid<span class="n">8</span></label>
+<label class="ck"><input type="checkbox">Vitamin C<span class="n">5</span></label>
+<label class="ck"><input type="checkbox">Niacinamide<span class="n">4</span></label>
+<label class="ck"><input type="checkbox">Retinol<span class="n">3</span></label>
+</fieldset>
+<div style="display: flex; flex-direction: column; gap: 14px; padding-top: 24px; border-top: 1px solid #F1E4E8">
+<span class="fh">Price</span>
+<div style="position: relative; height: 20px"><div style="position: absolute; left: 0; right: 0; top: 9px; height: 3px; background: #F1E4E8; border-radius: 3px"></div><div style="position: absolute; left: 0; right: 45%; top: 9px; height: 3px; background: #C8325F"></div><span style="position: absolute; left: 0; top: 1px; width: 20px; height: 20px; border-radius: 999px; background: #fff; box-shadow: 0 0 0 2px #C8325F"></span><span style="position: absolute; right: 45%; top: 1px; width: 20px; height: 20px; border-radius: 999px; background: #fff; box-shadow: 0 0 0 2px #C8325F; margin-right: -10px"></span></div>
+<span class="mut" style="font-size: 14px">$0 – $40</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 12px; padding-top: 24px; border-top: 1px solid #F1E4E8">
+<span class="fh">Brand</span>
+<label class="ck"><input type="checkbox">[Brand A]<span class="n">7</span></label>
+<label class="ck"><input type="checkbox">[Brand B]<span class="n">5</span></label>
+<a href="Desktop-Search.dc.html" style="font-size: 14px; font-weight: 600; text-decoration: underline">+ 6 more</a>
+</div>
+<div style="display: flex; flex-direction: column; gap: 12px; padding-top: 24px; border-top: 1px solid #F1E4E8">
+<span class="fh">More</span>
+<label class="ck"><input type="checkbox" checked>In stock only</label>
+<label class="ck"><input type="checkbox">On sale</label>
+<label class="ck"><input type="checkbox">Fragrance-free</label>
+</div>
+</aside>
+
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 16px">
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<span class="pill" style="height: 34px; font-size: 13px; background: #FCEEF1; border-color: #FCEEF1">Face serums <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></span>
+<span class="pill" style="height: 34px; font-size: 13px; background: #FCEEF1; border-color: #FCEEF1">Dry skin <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></span>
+<span class="pill" style="height: 34px; font-size: 13px; background: #FCEEF1; border-color: #FCEEF1">Hyaluronic acid <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></span>
+</div>
+<div style="display: flex; gap: 10px; align-items: center; flex: none"><label for="ssort" style="font-size: 14px; font-weight: 600">Sort</label><select id="ssort" style="height: 44px; border: 1px solid #E3D3D9; border-radius: 999px; padding: 0 36px 0 16px; font: 500 14px 'DM Sans', sans-serif; color: #1F1219; background: #fff"><option>Best match</option><option>Most popular</option><option>Price: low to high</option><option>Newest</option></select></div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px 24px">
+<sc-for list="{{items}}" as="p" hint-placeholder-count="6">
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div class="ph" style="aspect-ratio: 4/5; background: {{p.tint}}">
+<a href="Desktop-Product.dc.html" aria-label="{{p.name}}" style="position: absolute; inset: 0"></a>
+<sc-if value="{{p.hasBadge}}" hint-placeholder-val="{{true}}"><span class="{{p.badgeClass}}">{{p.badge}}</span></sc-if>
+<span class="phl">Product photo</span>
+<button class="icb" aria-label="Quick add to bag" style="position: absolute; right: 10px; bottom: 10px; background: #1F1219; color: #fff"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button>
+</div>
+<div>
+<div class="mut" style="font-size: 13px; margin-bottom: 4px">{{p.cat}}</div>
+<a href="Desktop-Product.dc.html" style="font-weight: 600; font-size: 16px; line-height: 1.3">{{p.name}}</a>
+<div style="display: flex; align-items: center; justify-content: space-between; margin-top: 8px"><div style="display: flex; gap: 8px; align-items: baseline"><span class="price">{{p.price}}</span><sc-if value="{{p.hasWas}}" hint-placeholder-val="{{false}}"><span class="was">{{p.was}}</span></sc-if></div><span style="font-size: 13px; font-weight: 600"><span class="stars" aria-hidden="true">★</span> {{p.rating}}</span></div>
+</div>
+</div>
+</sc-for>
+</div>
+<div style="display: flex; justify-content: center; padding-top: 16px"><button class="btn ghost" style="width: 260px">Show more results</button></div>
+</div>
+</section>
+
+<footer style="margin-top: auto; background: #2A1220; color: #F5E9ED; padding: 40px 56px 32px">
+<div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: #D9C3CC">
+<span class="d" style="font-size: 24px; color: #fff">ABeauty <span class="s" style="color: #F4A9C0">&amp;</span> Fashion</span>
+<div style="display: flex; gap: 28px"><a class="fl" href="Desktop-About.dc.html">About us</a><a class="fl" href="Desktop-Contact.dc.html">Contact</a><a class="fl" href="Desktop-Privacy.dc.html">Privacy Policy</a><a class="fl" href="Desktop-Terms.dc.html">Terms &amp; Conditions</a></div>
+<span>© 2026 ABeauty &amp; Fashion</span>
+</div>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2120}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const P = [
+      ['Rose Dew Hydrating Serum','Face serum','$28','','4.9','#FBE4EA','Bestseller'],
+      ['Vitamin C Brightening Drops','Face serum','$26','$32','4.6','#FAF0D4','Sale'],
+      ['Hyaluronic Water Gel Serum','Face serum','$24','','4.7','#E2ECF6',''],
+      ['Niacinamide Pore Serum','Face serum','$19','','4.6','#E2EEE5','New'],
+      ['Argan Repair Hair Serum','Hair serum','$21','','4.8','#F1E8DF',''],
+      ['Peptide Eye Serum','Eye serum','$29','','4.5','#ECE4F6','']
+    ].map(([name,cat,price,was,rating,tint,badge]) => ({ name, cat, price, was, hasWas: !!was, rating, tint, badge, hasBadge: !!badge, badgeClass: badge === 'Sale' ? 'badge sale' : 'badge' }));
+    return {
+      items: P,
+      quick: [
+        { name: 'Rose Dew Hydrating Serum', cat: 'Skincare · 30 ml', price: '$28', tint: '#FBE4EA' },
+        { name: 'Vitamin C Brightening Drops', cat: 'Skincare · 20 ml', price: '$26', tint: '#FAF0D4' },
+        { name: 'Argan Repair Hair Serum', cat: 'Hair Care · 50 ml', price: '$21', tint: '#F1E8DF' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

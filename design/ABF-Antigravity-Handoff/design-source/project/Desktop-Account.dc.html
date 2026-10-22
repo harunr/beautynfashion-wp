@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>My account (Desktop)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&amp;family=DM+Sans:wght@400;500;600;700&amp;family=Instrument+Serif:ital@0;1&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1F1219;text-decoration:none}a:hover{color:#C8325F}
+.ab{font-family:'DM Sans',system-ui,sans-serif;color:#1F1219;background:#fff;-webkit-font-smoothing:antialiased}
+.d{font-family:'Bricolage Grotesque',system-ui,sans-serif;letter-spacing:-0.03em;font-weight:700}
+.s{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;letter-spacing:-0.01em}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:44px;padding:0 20px;border-radius:999px;background:#1F1219;color:#fff;font:600 14px/1 'DM Sans',sans-serif;border:0;cursor:pointer;text-decoration:none;box-sizing:border-box}
+.btn:hover{background:#C8325F;color:#fff}
+.btn.ghost{background:transparent;color:#1F1219;box-shadow:inset 0 0 0 1.5px #1F1219}.btn.ghost:hover{background:#1F1219;color:#fff}
+.icb{width:44px;height:44px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:0;color:#1F1219;cursor:pointer;position:relative;padding:0}
+.icb:hover{background:#FCEEF1;color:#1F1219}
+.ph{position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:20px}
+.mut{color:#6E5A63}
+.nav a{font-weight:500;font-size:15px}
+.side a{display:flex;align-items:center;gap:12px;height:48px;padding:0 16px;border-radius:14px;font-weight:500;font-size:15px}
+.side a:hover{background:#FCEEF1}
+.side a.on{background:#1F1219;color:#fff}
+.card{border:1px solid #F1E4E8;border-radius:24px;padding:24px 28px;background:#fff}
+.st{display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:999px;font-size:13px;font-weight:700}
+.fl{color:#E6D3DA;font-size:15px}.fl:hover{color:#fff}
+</style>
+</helmet>
+<div class="ab" style="width: 1440px; height: 1640px; display: flex; flex-direction: column; overflow: hidden">
+
+<div style="background: #3A1830; color: #fff; height: 40px; display: flex; align-items: center; justify-content: center; gap: 28px; font-size: 13px; font-weight: 500">
+<span>Free shipping on orders over $50</span><span aria-hidden="true" style="opacity: .5">•</span><span>New: The Glow Edit is live</span><span aria-hidden="true" style="opacity: .5">•</span><span>Easy returns</span>
+</div>
+<header style="height: 84px; display: flex; align-items: center; justify-content: space-between; padding: 0 56px; border-bottom: 1px solid #F1E4E8; background: #fff">
+<a href="Main.dc.html" aria-label="ABeauty and Fashion home" style="display: flex; align-items: center"><img src="/_blob/c27a0df3d15979b74bbdb4201970bba0" alt="ABeauty &amp; Fashion" style="height: 46px; display: block"></a>
+<nav class="nav" aria-label="Main" style="display: flex; gap: 30px; align-items: center">
+<a href="Desktop-Shop.dc.html">Shop All</a><a href="Desktop-Shop.dc.html">Skincare</a><a href="Desktop-Shop.dc.html">Makeup</a><a href="Desktop-Shop.dc.html">Hair Care</a><a href="Desktop-Shop.dc.html">Beauty Tools</a><a href="Main.dc.html#journal">Journal</a><a href="Desktop-Shop.dc.html" style="color: #C8325F; font-weight: 700">Sale</a>
+</nav>
+<div style="display: flex; align-items: center; gap: 4px">
+<div style="display: flex; align-items: center; gap: 8px; height: 44px; width: 250px; padding: 0 16px; border-radius: 999px; background: #F8F1F3; box-sizing: border-box; margin-right: 8px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+<input aria-label="Search products" placeholder="Search serums, dryers…" style="border: 0; background: transparent; outline: 0; font: 400 14px 'DM Sans', sans-serif; width: 100%; color: #1F1219">
+</div>
+<a class="icb" href="Desktop-Account.dc.html" aria-label="My account" style="background: #FCEEF1"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"></path></svg></a>
+<a class="icb" href="Desktop-Account.dc.html" aria-label="Wishlist"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"></path></svg></a>
+<a class="icb" href="Desktop-Cart.dc.html" aria-label="Bag, 2 items"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1 12H6z"></path><path d="M9 8V6a3 3 0 0 1 6 0v2"></path></svg><span style="position: absolute; top: 4px; right: 2px; min-width: 18px; height: 18px; border-radius: 999px; background: #C8325F; color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center">2</span></a>
+</div>
+</header>
+
+<section style="background: #FCEEF1; padding: 48px 56px; display: flex; justify-content: space-between; align-items: end">
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span class="mut" style="font-size: 15px">My account</span>
+<h1 class="d" style="margin: 0; font-size: 60px; line-height: 1">Hi, <span class="s" style="color: #C8325F">[First name]</span></h1>
+</div>
+<a class="btn" href="Desktop-Shop.dc.html">Continue shopping</a>
+</section>
+
+<section style="padding: 48px 56px 96px; display: flex; gap: 48px; align-items: flex-start">
+<nav class="side" aria-label="Account" style="width: 260px; flex: none; display: flex; flex-direction: column; gap: 4px">
+<a class="on" href="Desktop-Account.dc.html"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"></rect><rect x="13" y="4" width="7" height="7" rx="1.5"></rect><rect x="4" y="13" width="7" height="7" rx="1.5"></rect><rect x="13" y="13" width="7" height="7" rx="1.5"></rect></svg>Dashboard</a>
+<a href="Desktop-Account.dc.html"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1 12H6z"></path><path d="M9 8V6a3 3 0 0 1 6 0v2"></path></svg>Orders</a>
+<a href="Desktop-Account.dc.html"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"></path></svg>Wishlist</a>
+<a href="Desktop-Account.dc.html"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"></path><circle cx="12" cy="10" r="2.5"></circle></svg>Addresses</a>
+<a href="Desktop-Account.dc.html"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"></rect><path d="M3 10h18"></path></svg>Payment methods</a>
+<a href="Desktop-Account.dc.html"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"></path></svg>Account details</a>
+<a href="Main.dc.html" style="margin-top: 12px; border-top: 1px solid #F1E4E8; border-radius: 0; padding-top: 12px; height: 60px; box-sizing: border-box"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"></path></svg>Log out</a>
+</nav>
+
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 28px">
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px">
+<div class="card" style="display: flex; flex-direction: column; gap: 6px"><span class="mut" style="font-size: 14px">Orders</span><span class="d" style="font-size: 40px">[#]</span><a href="Desktop-Account.dc.html" style="font-size: 14px; font-weight: 600; text-decoration: underline">View all orders</a></div>
+<div class="card" style="display: flex; flex-direction: column; gap: 6px; background: #FCEEF1; border-color: #FCEEF1"><span class="mut" style="font-size: 14px">Latest order</span><span class="d" style="font-size: 26px; line-height: 1.2">Out for delivery</span><a href="Desktop-Account.dc.html" style="font-size: 14px; font-weight: 600; text-decoration: underline">Track order</a></div>
+<div class="card" style="display: flex; flex-direction: column; gap: 6px"><span class="mut" style="font-size: 14px">Wishlist</span><span class="d" style="font-size: 40px">[#]</span><a href="Desktop-Account.dc.html" style="font-size: 14px; font-weight: 600; text-decoration: underline">See saved items</a></div>
+</div>
+
+<div class="card" style="padding: 8px 28px 12px">
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 18px 0"><h2 class="d" style="margin: 0; font-size: 24px">Recent orders</h2><a href="Desktop-Account.dc.html" style="font-size: 14px; font-weight: 600; text-decoration: underline">View all</a></div>
+<div class="mut" style="display: grid; grid-template-columns: 1.2fr 1.2fr 1.4fr 1fr 120px; gap: 16px; padding: 12px 0; border-top: 1px solid #F1E4E8; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase"><span>Order</span><span>Date</span><span>Status</span><span>Total</span><span></span></div>
+<sc-for list="{{orders}}" as="o" hint-placeholder-count="3">
+<div style="display: grid; grid-template-columns: 1.2fr 1.2fr 1.4fr 1fr 120px; gap: 16px; align-items: center; padding: 14px 0; border-top: 1px solid #F1E4E8; font-size: 15px">
+<strong>{{o.id}}</strong><span class="mut">{{o.date}}</span><span><span class="st" style="background: {{o.bg}}; color: {{o.fg}}">{{o.status}}</span></span><strong>{{o.total}}</strong>
+<a class="btn ghost" href="Desktop-Account.dc.html" style="height: 38px; padding: 0 16px; font-size: 13px">View</a>
+</div>
+</sc-for>
+</div>
+
+<div class="card">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px"><h2 class="d" style="margin: 0; font-size: 24px">Saved for later</h2><a href="Desktop-Account.dc.html" style="font-size: 14px; font-weight: 600; text-decoration: underline">Open wishlist</a></div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px">
+<sc-for list="{{wish}}" as="p" hint-placeholder-count="4">
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div class="ph" style="aspect-ratio: 1; border-radius: 18px; background: {{p.tint}}"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#8C6676" stroke-width="1" aria-hidden="true"><rect x="10" y="2" width="4" height="3" rx=".5"></rect><path d="M9 5h6v1.5c1.2.6 2 1.8 2 3.2V20a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V9.7c0-1.4.8-2.6 2-3.2z"></path></svg></div>
+<a href="Desktop-Product.dc.html" style="font-weight: 600; font-size: 14px; line-height: 1.3">{{p.name}}</a>
+<div style="display: flex; justify-content: space-between; align-items: center"><strong>{{p.price}}</strong><button class="btn" style="height: 34px; padding: 0 14px; font-size: 13px">Add to bag</button></div>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+</section>
+
+<footer style="margin-top: auto; background: #2A1220; color: #F5E9ED; padding: 40px 56px 32px">
+<div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: #D9C3CC">
+<span class="d" style="font-size: 24px; color: #fff">ABeauty <span class="s" style="color: #F4A9C0">&amp;</span> Fashion</span>
+<div style="display: flex; gap: 28px"><a class="fl" href="Main.dc.html">Shipping</a><a class="fl" href="Main.dc.html">Returns</a><a class="fl" href="Main.dc.html">Contact</a><a class="fl" href="Main.dc.html">Privacy Policy</a><a class="fl" href="Main.dc.html">Terms &amp; Conditions</a></div>
+<span>© 2026 ABeauty &amp; Fashion</span>
+</div>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1640}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      orders: [
+        { id: '#[1042]', date: '[Order date]', status: 'Out for delivery', total: '$48.99', bg: '#FCEEF1', fg: '#A3244B' },
+        { id: '#[1031]', date: '[Order date]', status: 'Processing', total: '$79.00', bg: '#FBF1D6', fg: '#7A5A10' },
+        { id: '#[1019]', date: '[Order date]', status: 'Completed', total: '$62.50', bg: '#E4F2E9', fg: '#2E6B45' }
+      ],
+      wish: [
+        { name: 'Pro Ionic Hair Dryer 1800W', price: '$79', tint: '#F1E8DF' },
+        { name: 'Mulberry Silk Pillowcase', price: '$39', tint: '#ECE4F6' },
+        { name: 'Petal Blush Stick', price: '$19', tint: '#FCE6D9' },
+        { name: 'Jade Facial Roller', price: '$24', tint: '#E2ECF6' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+# ============================================
+# Git Ignore for Beauty & Fashion Headless WooCommerce + Next.js
+# ============================================
+
+# --- OS & IDE Files ---
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# --- Next.js Frontend ---
+frontend/node_modules/
+frontend/.pnp
+frontend/.pnp.js
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/dist/
+frontend/*.tsbuildinfo
+frontend/next-env.d.ts
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# --- Root node_modules (if any) ---
+node_modules/
+.npm/
+
+# --- WordPress Backend ---
+backend/wp-config.php
+backend/wp-content/uploads/
+backend/wp-content/blogs.dir/
+backend/wp-content/upgrade/
+backend/wp-content/backup-db/
+backend/wp-content/backups/
+backend/wp-content/cache/
+backend/wp-content/w3tc-config/
+backend/*.log
+backend/sitemap.xml
+backend/sitemap.xml.gz
+
+# Ignore core WordPress files if using Composer/WP-CLI workflow (optional)
+# For now, we preserve custom theme/plugins under version control:
+!backend/wp-content/plugins/beautynfashion-*
+!backend/wp-content/themes/beautynfashion-*
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Design zip archives
+*.zip

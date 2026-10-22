@@ -1,0 +1,55 @@
+name: Deploy to Hostinger
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Test SSH Connectivity
+        run: |
+          ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo 'Hostinger Connected'"
+
+      - name: Deploy Theme / Backend via rsync (safe scoped sync)
+        run: |
+          if [ -d "backend/wp-content/themes" ]; then
+            rsync -avz --delete \
+              -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no" \
+              --exclude '.git*' \
+              backend/wp-content/themes/ \
+              ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:domains/abeautynfashion.com/public_html/wp-content/themes/
+          elif [ -d "wp-content/themes" ]; then
+            rsync -avz --delete \
+              -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no" \
+              --exclude '.git*' \
+              wp-content/themes/ \
+              ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:domains/abeautynfashion.com/public_html/wp-content/themes/
+          fi
+
+      - name: Deploy mu-plugins via rsync (copy-only, never delete)
+        run: |
+          if [ -d "backend/wp-content/mu-plugins" ]; then
+            rsync -avz \
+              -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no" \
+              backend/wp-content/mu-plugins/ \
+              ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:domains/abeautynfashion.com/public_html/wp-content/mu-plugins/
+          fi
+
+      - name: Purge LiteSpeed Cache
+        run: |
+          ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "wp --path=domains/abeautynfashion.com/public_html litespeed-purge all || true"
