@@ -183,13 +183,13 @@ export default function Header({ onOpenMobileMenu, cartCount }: HeaderProps) {
 
             {/* Wishlist Icon with Counter */}
             <Link
-              href="/shop"
+              href="/wishlist"
               aria-label={t.nav.wishlist}
-              className="relative p-2 rounded-full hover:bg-blush-100 text-ink transition-colors hidden sm:inline-flex"
+              className="relative p-2 rounded-full hover:bg-blush-100 text-ink transition-colors inline-flex"
             >
               <Heart className="w-5 h-5" />
               {wishlistCount > 0 && (
-                <span className="absolute top-1 right-0.5 min-w-[17px] h-[17px] px-1 rounded-pill bg-ink text-white text-[10px] font-bold flex items-center justify-center shadow-sm">
+                <span className="absolute top-1 right-0.5 min-w-[17px] h-[17px] px-1 rounded-pill bg-rose text-white text-[10px] font-bold flex items-center justify-center shadow-sm">
                   {formattedWishlist}
                 </span>
               )}
@@ -302,14 +302,29 @@ export default function Header({ onOpenMobileMenu, cartCount }: HeaderProps) {
                   </a>
                 </div>
               )}
-              <Link
-                href="/account"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-3 text-sm font-semibold text-ink hover:text-rose"
-              >
-                <User className="w-4 h-4" />
-                <span>{t.nav.account}</span>
-              </Link>
+              <div className="grid grid-cols-2 gap-2">
+                <Link
+                  href="/wishlist"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 text-sm font-semibold text-ink hover:text-rose p-2 rounded-lg bg-white border border-line/60"
+                >
+                  <Heart className="w-4 h-4 text-rose" />
+                  <span>{t.nav.wishlist}</span>
+                  {wishlistCount > 0 && (
+                    <span className="ml-auto text-xs bg-rose text-white px-1.5 py-0.2 rounded-full font-bold">
+                      {formattedWishlist}
+                    </span>
+                  )}
+                </Link>
+                <Link
+                  href="/account"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 text-sm font-semibold text-ink hover:text-rose p-2 rounded-lg bg-white border border-line/60"
+                >
+                  <User className="w-4 h-4 text-muted" />
+                  <span>{t.nav.account}</span>
+                </Link>
+              </div>
               <p className="text-[11px] text-muted">
                 {lang === "bn"
                   ? "১০০% খাঁটি পণ্য ও দ্রুত ডেলিভারি গ্যারান্টি"

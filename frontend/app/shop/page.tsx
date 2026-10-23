@@ -26,11 +26,13 @@ function ShopContent() {
   const initialQuery = searchParams.get("q") || "";
 
   const { lang, t, formatPrice, toBnDigits } = useLanguage();
-  const { addToCart, toggleWishlist, isInWishlist } = useCart();
+  const { addToCart, toggleWishlist, isInWishlist, wishlistIds } = useCart();
 
   // Filter States
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
-  const [selectedBrand, setSelectedBrand] = useState<string>("all");
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  const [priceRange, setPriceRange] = useState<string>("all");
+  const [wishlistOnly, setWishlistOnly] = useState<boolean>(false);
   const [inStockOnly, setInStockOnly] = useState<boolean>(false);
   const [saleOnly, setSaleOnly] = useState<boolean>(false);
   const [sortBy, setSortBy] = useState<"featured" | "price-asc" | "price-desc" | "rating">("featured");
@@ -38,22 +40,44 @@ function ShopContent() {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [addedItemId, setAddedItemId] = useState<number | null>(null);
 
-  const brands = useMemo(() => {
-    const set = new Set<string>();
-    PRODUCTS.forEach((p) => set.add(p.brand));
-    return Array.from(set);
+  const brandCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    PRODUCTS.forEach((p) => {
+      counts[p.brand] = (counts[p.brand] || 0) + 1;
+    });
+    return counts;
   }, []);
+
+  const brands = useMemo(() => {
+    return Object.keys(brandCounts);
+  }, [brandCounts]);
+
+  const toggleBrand = (brandName: string) => {
+    setSelectedBrands((prev) =>
+      prev.includes(brandName) ? prev.filter((b) => b !== brandName) : [...prev, brandName]
+    );
+  };
 
   const filteredProducts = useMemo(() => {
     return PRODUCTS.filter((p) => {
+      // Wishlist toggle
+      if (wishlistOnly && !wishlistIds.includes(p.id)) {
+        return false;
+      }
       // Category filter
       if (selectedCategory !== "all" && p.categorySlug !== selectedCategory) {
         return false;
       }
-      // Brand filter
-      if (selectedBrand !== "all" && p.brand !== selectedBrand) {
+      // Brand filter (multi-select)
+      if (selectedBrands.length > 0 && !selectedBrands.includes(p.brand)) {
         return false;
       }
+      // Price range
+      if (priceRange === "under-2000" && p.priceBDT >= 2000) return false;
+      if (priceRange === "2000-3500" && (p.priceBDT < 2000 || p.priceBDT > 3500)) return false;
+      if (priceRange === "3500-5000" && (p.priceBDT < 3500 || p.priceBDT > 5000)) return false;
+      if (priceRange === "above-5000" && p.priceBDT <= 5000) return false;
+
       // In-stock toggle
       if (inStockOnly && !p.inStock) {
         return false;
@@ -71,12 +95,12 @@ function ShopContent() {
       }
       return true;
     }).sort((a, b) => {
-      if (sortBy === "price-asc") return a.priceUSD - b.priceUSD;
-      if (sortBy === "price-desc") return b.priceUSD - a.priceUSD;
+      if (sortBy === "price-asc") return a.priceBDT - b.priceBDT;
+      if (sortBy === "price-desc") return b.priceBDT - a.priceBDT;
       if (sortBy === "rating") return b.rating - a.rating;
       return 0; // "featured" keeps catalog order
     });
-  }, [selectedCategory, selectedBrand, inStockOnly, saleOnly, sortBy, searchFilter]);
+  }, [selectedCategory, selectedBrands, priceRange, wishlistOnly, inStockOnly, saleOnly, sortBy, searchFilter, wishlistIds]);
 
   const handleQuickAdd = (product: Product, e: React.MouseEvent) => {
     e.preventDefault();
@@ -88,7 +112,9 @@ function ShopContent() {
 
   const clearAllFilters = () => {
     setSelectedCategory("all");
-    setSelectedBrand("all");
+    setSelectedBrands([]);
+    setPriceRange("all");
+    setWishlistOnly(false);
     setInStockOnly(false);
     setSaleOnly(false);
     setSearchFilter("");
@@ -97,7 +123,9 @@ function ShopContent() {
 
   const hasActiveFilters =
     selectedCategory !== "all" ||
-    selectedBrand !== "all" ||
+    selectedBrands.length > 0 ||
+    priceRange !== "all" ||
+    wishlistOnly ||
     inStockOnly ||
     saleOnly ||
     searchFilter.trim() !== "";
@@ -256,37 +284,103 @@ function ShopContent() {
                       onClick={clearAllFilters}
                       className="text-xs text-rose font-bold hover:underline"
                     >
-                      {lang === "bn" ? "রিসেট" : "Reset"}
+                      {lang === "bn" ? "রিসেট" : "Reset All"}
                     </button>
                   )}
                 </div>
 
-                {/* Brands Filter */}
+                {/* Wishlist Quick Toggle */}
                 <div className="mb-6">
-                  <h4 className="font-bold text-xs uppercase tracking-wider text-muted mb-3">
-                    {lang === "bn" ? "ব্র্যান্ড" : "Brand"}
-                  </h4>
-                  <div className="flex flex-col gap-2">
-                    <label className="flex items-center gap-2.5 text-xs text-ink cursor-pointer">
+                  <label className="flex items-center justify-between text-xs font-semibold text-ink cursor-pointer p-2.5 rounded-xl bg-rose-50/60 border border-rose-200/70 hover:bg-rose-50 transition-colors">
+                    <span className="flex items-center gap-2 text-rose font-bold">
+                      <Heart className={`w-4 h-4 ${wishlistOnly ? "fill-rose" : ""}`} />
+                      <span>{lang === "bn" ? "সংরক্ষিত উইশলিস্ট" : "My Saved Wishlist"}</span>
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-bold text-rose bg-white px-2 py-0.5 rounded-full border border-rose-200">
+                        {lang === "bn" ? toBnDigits(wishlistIds.length) : wishlistIds.length}
+                      </span>
                       <input
-                        type="radio"
-                        name="brand"
-                        checked={selectedBrand === "all"}
-                        onChange={() => setSelectedBrand("all")}
-                        className="text-rose focus:ring-rose"
+                        type="checkbox"
+                        checked={wishlistOnly}
+                        onChange={(e) => setWishlistOnly(e.target.checked)}
+                        className="rounded text-rose focus:ring-rose w-4 h-4"
                       />
-                      <span>{lang === "bn" ? "সকল ব্র্যান্ড" : "All Brands"}</span>
-                    </label>
+                    </div>
+                  </label>
+                </div>
+
+                {/* Brands Multi-Select Filter */}
+                <div className="mb-6">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-bold text-xs uppercase tracking-wider text-muted">
+                      {lang === "bn" ? "ব্র্যান্ড" : "Brand"}
+                    </h4>
+                    {selectedBrands.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedBrands([])}
+                        className="text-[11px] text-rose font-semibold hover:underline"
+                      >
+                        {lang === "bn" ? "মুছুন" : "Clear"}
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-2 max-h-56 overflow-y-auto pr-1">
                     {brands.map((b) => (
-                      <label key={b} className="flex items-center gap-2.5 text-xs text-ink cursor-pointer">
+                      <label key={b} className="flex items-center justify-between text-xs text-ink cursor-pointer hover:text-rose transition-colors py-0.5">
+                        <span className="flex items-center gap-2.5">
+                          <input
+                            type="checkbox"
+                            checked={selectedBrands.includes(b)}
+                            onChange={() => toggleBrand(b)}
+                            className="rounded text-rose focus:ring-rose w-4 h-4"
+                          />
+                          <span className={selectedBrands.includes(b) ? "font-bold text-rose" : ""}>{b}</span>
+                        </span>
+                        <span className="text-[10px] text-muted font-medium bg-sand/60 px-1.5 py-0.5 rounded">
+                          {brandCounts[b] || 0}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Price Range Filter */}
+                <div className="mb-6 pt-4 border-t border-line">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-bold text-xs uppercase tracking-wider text-muted">
+                      {lang === "bn" ? "মূল্য সীমা" : "Price Range"}
+                    </h4>
+                    {priceRange !== "all" && (
+                      <button
+                        type="button"
+                        onClick={() => setPriceRange("all")}
+                        className="text-[11px] text-rose font-semibold hover:underline"
+                      >
+                        {lang === "bn" ? "সকল" : "All"}
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    {[
+                      { id: "all", labelEn: "All Prices", labelBn: "সকল মূল্য" },
+                      { id: "under-2000", labelEn: "Under ৳2,000", labelBn: "৳২,০০০ এর নিচে" },
+                      { id: "2000-3500", labelEn: "৳2,000 – ৳3,500", labelBn: "৳২,০০০ – ৳৩,৫০০" },
+                      { id: "3500-5000", labelEn: "৳3,500 – ৳5,000", labelBn: "৳৩,৫০০ – ৳৫,০০০" },
+                      { id: "above-5000", labelEn: "Above ৳5,000", labelBn: "৳৫,০০০ এর উপরে" },
+                    ].map((pr) => (
+                      <label key={pr.id} className="flex items-center gap-2.5 text-xs text-ink cursor-pointer hover:text-rose transition-colors py-0.5">
                         <input
                           type="radio"
-                          name="brand"
-                          checked={selectedBrand === b}
-                          onChange={() => setSelectedBrand(b)}
+                          name="priceRange"
+                          checked={priceRange === pr.id}
+                          onChange={() => setPriceRange(pr.id)}
                           className="text-rose focus:ring-rose"
                         />
-                        <span>{b}</span>
+                        <span className={priceRange === pr.id ? "font-bold text-rose" : ""}>
+                          {lang === "bn" ? pr.labelBn : pr.labelEn}
+                        </span>
                       </label>
                     ))}
                   </div>
@@ -318,6 +412,92 @@ function ShopContent() {
 
               {/* ================= PRODUCT GRID ================= */}
               <div className="lg:col-span-9">
+                {/* Active Filter Chips */}
+                {hasActiveFilters && (
+                  <div className="flex flex-wrap items-center gap-2 mb-6 p-3 bg-blush-50/60 rounded-card border border-line">
+                    <span className="text-[11px] font-bold text-muted uppercase tracking-wider mr-1">
+                      {lang === "bn" ? "সক্রিয় ফিল্টার:" : "Active Filters:"}
+                    </span>
+                    {selectedCategory !== "all" && (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedCategory("all")}
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-line text-xs font-semibold text-ink hover:border-rose hover:text-rose transition-colors"
+                      >
+                        <span>
+                          {lang === "bn"
+                            ? CATEGORIES.find((c) => c.slug === selectedCategory)?.nameBn || selectedCategory
+                            : CATEGORIES.find((c) => c.slug === selectedCategory)?.nameEn || selectedCategory}
+                        </span>
+                        <X className="w-3 h-3 text-muted hover:text-rose" />
+                      </button>
+                    )}
+                    {selectedBrands.map((b) => (
+                      <button
+                        key={b}
+                        type="button"
+                        onClick={() => toggleBrand(b)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-line text-xs font-semibold text-ink hover:border-rose hover:text-rose transition-colors"
+                      >
+                        <span>{b}</span>
+                        <X className="w-3 h-3 text-muted hover:text-rose" />
+                      </button>
+                    ))}
+                    {priceRange !== "all" && (
+                      <button
+                        type="button"
+                        onClick={() => setPriceRange("all")}
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-line text-xs font-semibold text-ink hover:border-rose hover:text-rose transition-colors"
+                      >
+                        <span>
+                          {priceRange === "under-2000" && (lang === "bn" ? "৳২,০০০ এর নিচে" : "Under ৳2,000")}
+                          {priceRange === "2000-3500" && "৳2,000 – ৳3,500"}
+                          {priceRange === "3500-5000" && "৳3,500 – ৳5,000"}
+                          {priceRange === "above-5000" && (lang === "bn" ? "৳৫,০০০ এর উপরে" : "Above ৳5,000")}
+                        </span>
+                        <X className="w-3 h-3 text-muted hover:text-rose" />
+                      </button>
+                    )}
+                    {wishlistOnly && (
+                      <button
+                        type="button"
+                        onClick={() => setWishlistOnly(false)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 border border-rose-200 text-xs font-semibold text-rose"
+                      >
+                        <Heart className="w-3 h-3 fill-rose text-rose" />
+                        <span>{lang === "bn" ? "পছন্দের তালিকা" : "Wishlist"}</span>
+                        <X className="w-3 h-3" />
+                      </button>
+                    )}
+                    {saleOnly && (
+                      <button
+                        type="button"
+                        onClick={() => setSaleOnly(false)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-line text-xs font-semibold text-ink hover:border-rose hover:text-rose transition-colors"
+                      >
+                        <span>{lang === "bn" ? "ডিসকাউন্ট অফার" : "Special Offers"}</span>
+                        <X className="w-3 h-3 text-muted hover:text-rose" />
+                      </button>
+                    )}
+                    {inStockOnly && (
+                      <button
+                        type="button"
+                        onClick={() => setInStockOnly(false)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-line text-xs font-semibold text-ink hover:border-rose hover:text-rose transition-colors"
+                      >
+                        <span>{lang === "bn" ? "স্টকে আছে" : "In Stock"}</span>
+                        <X className="w-3 h-3 text-muted hover:text-rose" />
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={clearAllFilters}
+                      className="text-xs text-rose font-bold hover:underline ml-auto"
+                    >
+                      {lang === "bn" ? "সব মুছুন" : "Clear All"}
+                    </button>
+                  </div>
+                )}
                 {filteredProducts.length === 0 ? (
                   <div className="bg-blush-50/60 rounded-card p-12 text-center border border-line flex flex-col items-center justify-center gap-4">
                     <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center text-rose shadow-sm">
@@ -488,6 +668,27 @@ function ShopContent() {
             </div>
 
             <div className="p-5 flex-1 overflow-y-auto flex flex-col gap-6">
+              {/* Wishlist Quick Toggle */}
+              <div>
+                <label className="flex items-center justify-between text-xs font-semibold text-ink cursor-pointer p-2.5 rounded-xl bg-rose-50/70 border border-rose-200">
+                  <span className="flex items-center gap-2 text-rose font-bold">
+                    <Heart className={`w-4 h-4 ${wishlistOnly ? "fill-rose" : ""}`} />
+                    <span>{lang === "bn" ? "সংরক্ষিত উইশলিস্ট" : "My Saved Wishlist"}</span>
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-bold text-rose bg-white px-2 py-0.5 rounded-full border border-rose-200">
+                      {lang === "bn" ? toBnDigits(wishlistIds.length) : wishlistIds.length}
+                    </span>
+                    <input
+                      type="checkbox"
+                      checked={wishlistOnly}
+                      onChange={(e) => setWishlistOnly(e.target.checked)}
+                      className="rounded text-rose focus:ring-rose w-4 h-4"
+                    />
+                  </div>
+                </label>
+              </div>
+
               {/* Categories */}
               <div>
                 <h4 className="font-bold text-xs uppercase tracking-wider text-muted mb-3">
@@ -519,32 +720,66 @@ function ShopContent() {
                 </div>
               </div>
 
-              {/* Brands */}
+              {/* Brands Multi-Select */}
               <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-bold text-xs uppercase tracking-wider text-muted">
+                    {lang === "bn" ? "ব্র্যান্ড" : "Brand"}
+                  </h4>
+                  {selectedBrands.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedBrands([])}
+                      className="text-[11px] text-rose font-semibold hover:underline"
+                    >
+                      {lang === "bn" ? "মুছুন" : "Clear"}
+                    </button>
+                  )}
+                </div>
+                <div className="flex flex-col gap-2 max-h-48 overflow-y-auto pr-1">
+                  {brands.map((b) => (
+                    <label key={b} className="flex items-center justify-between text-xs text-ink">
+                      <span className="flex items-center gap-2.5">
+                        <input
+                          type="checkbox"
+                          checked={selectedBrands.includes(b)}
+                          onChange={() => toggleBrand(b)}
+                          className="rounded text-rose focus:ring-rose w-4 h-4"
+                        />
+                        <span className={selectedBrands.includes(b) ? "font-bold text-rose" : ""}>{b}</span>
+                      </span>
+                      <span className="text-[10px] text-muted bg-sand/60 px-1.5 py-0.5 rounded">
+                        {brandCounts[b] || 0}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Price Range */}
+              <div className="pt-4 border-t border-line">
                 <h4 className="font-bold text-xs uppercase tracking-wider text-muted mb-3">
-                  {lang === "bn" ? "ব্র্যান্ড" : "Brand"}
+                  {lang === "bn" ? "মূল্য সীমা" : "Price Range"}
                 </h4>
                 <div className="flex flex-col gap-2">
-                  <label className="flex items-center gap-2 text-xs text-ink">
-                    <input
-                      type="radio"
-                      name="m-brand"
-                      checked={selectedBrand === "all"}
-                      onChange={() => setSelectedBrand("all")}
-                      className="text-rose focus:ring-rose"
-                    />
-                    <span>{lang === "bn" ? "সকল ব্র্যান্ড" : "All Brands"}</span>
-                  </label>
-                  {brands.map((b) => (
-                    <label key={b} className="flex items-center gap-2 text-xs text-ink">
+                  {[
+                    { id: "all", labelEn: "All Prices", labelBn: "সকল মূল্য" },
+                    { id: "under-2000", labelEn: "Under ৳2,000", labelBn: "৳২,০০০ এর নিচে" },
+                    { id: "2000-3500", labelEn: "৳2,000 – ৳3,500", labelBn: "৳২,০০০ – ৳৩,৫০০" },
+                    { id: "3500-5000", labelEn: "৳3,500 – ৳5,000", labelBn: "৳৩,৫০০ – ৳৫,০০০" },
+                    { id: "above-5000", labelEn: "Above ৳5,000", labelBn: "৳৫,০০০ এর উপরে" },
+                  ].map((pr) => (
+                    <label key={pr.id} className="flex items-center gap-2.5 text-xs text-ink">
                       <input
                         type="radio"
-                        name="m-brand"
-                        checked={selectedBrand === b}
-                        onChange={() => setSelectedBrand(b)}
+                        name="m-priceRange"
+                        checked={priceRange === pr.id}
+                        onChange={() => setPriceRange(pr.id)}
                         className="text-rose focus:ring-rose"
                       />
-                      <span>{b}</span>
+                      <span className={priceRange === pr.id ? "font-bold text-rose" : ""}>
+                        {lang === "bn" ? pr.labelBn : pr.labelEn}
+                      </span>
                     </label>
                   ))}
                 </div>

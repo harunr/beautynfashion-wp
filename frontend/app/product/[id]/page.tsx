@@ -15,6 +15,7 @@ import {
   Minus,
   ArrowRight,
   RotateCcw,
+  MessageCircle,
 } from "lucide-react";
 import AnnouncementBar from "@/components/layout/AnnouncementBar";
 import Header from "@/components/layout/Header";
@@ -401,6 +402,23 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                     )}
                   </button>
                 </div>
+
+                {/* Direct WhatsApp Order & Consultation Button */}
+                <a
+                  href={`https://wa.me/8801811377577?text=${encodeURIComponent(
+                    `Hello ABeauty & Fashion, I want to order / inquire about: ${product.titleEn} (৳${product.priceBDT.toLocaleString()}). Link: https://abeautynfashion.com/product/${product.slug || product.id}`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full h-12 rounded-pill bg-[#25D366] hover:bg-[#20ba59] text-white font-bold text-sm inline-flex items-center justify-center gap-2 shadow-sm transition-all"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span>
+                    {lang === "bn"
+                      ? "হোয়াটসঅ্যাপে সরাসরি অর্ডার বা পরামর্শ নিন"
+                      : "Order or Inquire via WhatsApp"}
+                  </span>
+                </a>
 
                 {/* Fast Delivery & Trust Highlights */}
                 <div className="p-4 rounded-card bg-blush-50/70 border border-line flex flex-col gap-2.5 text-xs">
