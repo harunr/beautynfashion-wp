@@ -179,6 +179,11 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/journal" className="hover:text-rose-light transition-colors">
+                  {t.nav.journal}
+                </Link>
+              </li>
+              <li>
                 <Link href="/sale" className="text-rose-light font-medium hover:text-white transition-colors">
                   {t.nav.sale}
                 </Link>
@@ -216,9 +221,19 @@ export default function Footer() {
 
           <div>
             <h4 className="font-bold text-white mb-4 text-xs tracking-wider uppercase">
-              {t.footer.legal}
+              {lang === "bn" ? "প্রতিষ্ঠান ও পলিসি" : "Company & Legal"}
             </h4>
             <ul className="space-y-2.5 text-blush-200">
+              <li>
+                <Link href="/about" className="hover:text-rose-light transition-colors">
+                  {lang === "bn" ? "আমাদের সম্পর্কে" : "About Us"}
+                </Link>
+              </li>
+              <li>
+                <Link href="/authenticity" className="hover:text-rose-light transition-colors">
+                  {lang === "bn" ? "১০০% আসল পণ্যের নিশ্চয়তা" : "Authenticity Guarantee"}
+                </Link>
+              </li>
               <li>
                 <Link href="/privacy" className="hover:text-rose-light transition-colors">
                   {lang === "bn" ? "প্রাইভেসি পলিসি" : "Privacy Policy"}
@@ -227,11 +242,6 @@ export default function Footer() {
               <li>
                 <Link href="/terms" className="hover:text-rose-light transition-colors">
                   {lang === "bn" ? "শর্তাবলী" : "Terms & Conditions"}
-                </Link>
-              </li>
-              <li>
-                <Link href="/authenticity" className="hover:text-rose-light transition-colors">
-                  {lang === "bn" ? "১০০% আসল পণ্যের নিশ্চয়তা" : "Authenticity Guarantee"}
                 </Link>
               </li>
             </ul>
