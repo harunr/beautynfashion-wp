@@ -43,7 +43,7 @@ const faqs = [
   {
     qEn: "How do I choose the right skincare routine for my skin type?",
     qBn: "আমার ত্বকের জন্য সঠিক স্কিনকেয়ার রুটিন কীভাবে বাছাই করব?",
-    aEn: "Explore our Journal section for dermatologist-approved guides or reach out to our beauty advisors on WhatsApp (+880 1700 000000) for personalized consultations.",
+    aEn: "Explore our Journal section for dermatologist-approved guides or reach out to our beauty advisors on WhatsApp (+880 1811-377577) for personalized consultations.",
     aBn: "আমাদের জার্নাল সেকশনে বিভিন্ন ত্বকের জন্য বিশেষ নির্দেশিকা দেওয়া আছে। এছাড়াও হোয়াটসঅ্যাপে মেসেজ দিয়ে আমাদের বিউটি বিশেষজ্ঞদের ফ্রি পরামর্শ নিতে পারেন।",
   },
 ];

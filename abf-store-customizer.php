@@ -62,7 +62,7 @@ class ABF_Store_Customizer {
 
             // Header
             'header_logo_url' => 'https://abeautynfashion.com/logo.png',
-            'header_hotline' => '+880 1700 000000',
+            'header_hotline' => '+880 1712-377577',
             'header_search_placeholder_en' => 'Search serums, lipsticks, stylers…',
             'header_search_placeholder_bn' => 'সিরাম, লিপস্টিক, স্কিনকেয়ার খুঁজুন...',
 
@@ -77,7 +77,7 @@ class ABF_Store_Customizer {
             'footer_trade_license' => 'TRAD/DSCC/042819/2024',
             'social_facebook' => 'https://facebook.com/abeautynfashion',
             'social_instagram' => 'https://instagram.com/abeautynfashion',
-            'social_whatsapp' => '+8801700000000',
+            'social_whatsapp' => '+8801811377577',
             'social_youtube' => 'https://youtube.com',
 
             // Homepage Hero
@@ -576,7 +576,7 @@ class ABF_Store_Customizer {
                         <tr>
                             <th scope="row">WhatsApp Direct Number</th>
                             <td>
-                                <input type="text" name="<?php echo $this->option_key; ?>[social_whatsapp]" value="<?php echo esc_attr( $settings['social_whatsapp'] ); ?>" class="regular-text" placeholder="+8801700000000" />
+                                <input type="text" name="<?php echo $this->option_key; ?>[social_whatsapp]" value="<?php echo esc_attr( $settings['social_whatsapp'] ); ?>" class="regular-text" placeholder="+8801811377577" />
                             </td>
                         </tr>
                         <tr>
@@ -943,7 +943,7 @@ class ABF_Store_Customizer {
                     'label' => 'Customer Care Hotline',
                     'name' => 'contact_phone',
                     'type' => 'text',
-                    'default_value' => '+880 1700 000000',
+                    'default_value' => '+880 1712-377577',
                 ],
                 [
                     'key' => 'field_contact_email',
@@ -957,7 +957,7 @@ class ABF_Store_Customizer {
                     'label' => 'WhatsApp Number',
                     'name' => 'contact_whatsapp',
                     'type' => 'text',
-                    'default_value' => '+8801700000000',
+                    'default_value' => '+8801811377577',
                 ],
                 [
                     'key' => 'field_contact_address_en',

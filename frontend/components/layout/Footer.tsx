@@ -37,7 +37,7 @@ export default function Footer() {
 
   const whatsappUrl = settings.social_whatsapp
     ? `https://wa.me/${settings.social_whatsapp.replace(/[^0-9]/g, "")}`
-    : "https://wa.me/8801700000000";
+    : "https://wa.me/8801811377577";
 
   return (
     <footer className="bg-plum-900 text-blush-50 pt-16 pb-10 transition-colors border-t border-plum-800">

@@ -141,7 +141,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted">{lang === "bn" ? "মোবাইল:" : "Phone:"}</span>
-                  <span className="font-bold text-ink">{phoneNumber || "+880 1700 000000"}</span>
+                  <span className="font-bold text-ink">{phoneNumber || "+880 1712-377577"}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted">{lang === "bn" ? "ডেলিভারি ঠিকানা:" : "Address:"}</span>

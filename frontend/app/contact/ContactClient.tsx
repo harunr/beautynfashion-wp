@@ -37,8 +37,8 @@ export default function ContactClient({ wpPage }: { wpPage: WordPressPage | null
   const acf = (wpPage?.acf || {}) as Record<string, string | undefined>;
 
   const email = acf.contact_email || "support@abeautynfashion.com";
-  const phone = acf.contact_phone || "+880 1700 000000";
-  const whatsapp = acf.contact_whatsapp || "+8801700000000";
+  const phone = acf.contact_phone || "+880 1712-377577";
+  const whatsapp = acf.contact_whatsapp || "+8801811377577";
   const address =
     lang === "bn"
       ? acf.contact_address_bn || "বাড়ি ৪২, রোড ১১, ব্লক ডি, বনানী, ঢাকা ১২১৩, বাংলাদেশ"
@@ -312,7 +312,7 @@ export default function ContactClient({ wpPage }: { wpPage: WordPressPage | null
                         required
                         value={form.phone}
                         onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                        placeholder="+880 1700 000000"
+                        placeholder="+880 1712-377577"
                         className="w-full h-11 px-3.5 rounded-card border border-line text-sm text-ink outline-none focus:border-rose transition-colors"
                       />
                     </div>

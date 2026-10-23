@@ -74,7 +74,7 @@ export const DEFAULT_STORE_SETTINGS: StoreSettings = {
   announcement_link: "/sale",
 
   header_logo_url: "/logo.png",
-  header_hotline: "+880 1700 000000",
+  header_hotline: "+880 1712-377577",
   header_search_placeholder_en: "Search serums, lipsticks, stylers…",
   header_search_placeholder_bn: "সিরাম, লিপস্টিক, স্কিনকেয়ার খুঁজুন...",
 
@@ -92,7 +92,7 @@ export const DEFAULT_STORE_SETTINGS: StoreSettings = {
   footer_trade_license: "TRAD/DSCC/042819/2024",
   social_facebook: "https://facebook.com/abeautynfashion",
   social_instagram: "https://instagram.com/abeautynfashion",
-  social_whatsapp: "+8801700000000",
+  social_whatsapp: "+8801811377577",
   social_youtube: "https://youtube.com",
 
   hero_eyebrow_en: "100% Genuine Imported Brands",

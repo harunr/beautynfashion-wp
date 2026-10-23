@@ -48,9 +48,9 @@ export default function SupportChat() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const rawWhatsapp = settings.social_whatsapp || "+8801700000000";
+  const rawWhatsapp = settings.social_whatsapp || "+8801811377577";
   const cleanWhatsapp = rawWhatsapp.replace(/[^0-9]/g, "");
-  const hotline = settings.header_hotline || "+880 1700 000000";
+  const hotline = settings.header_hotline || "+880 1712-377577";
 
   // Pre-configured quick topics
   const quickTopics = [
