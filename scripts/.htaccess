@@ -1,12 +1,22 @@
-# Set strict noindex on WordPress backend
+# 1. Strict noindex on WordPress backend
 <IfModule mod_headers.c>
 Header set X-Robots-Tag "noindex, nofollow, noarchive, nosnippet"
 </IfModule>
 
-# Redirect root visits on backend directly to wp-admin
 <IfModule mod_rewrite.c>
 RewriteEngine On
 RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+# 2. If visitor reaches Hostinger on the main domain (cached DNS), forward to Vercel storefront
+RewriteCond %{HTTP_HOST} ^(www\.)?abeautynfashion\.com$ [NC]
+RewriteCond %{REQUEST_URI} !^/wp-json [NC]
+RewriteCond %{REQUEST_URI} !^/graphql [NC]
+RewriteCond %{REQUEST_URI} !^/wp-admin [NC]
+RewriteCond %{REQUEST_URI} !^/wp-login\.php [NC]
+RewriteRule ^(.*)$ https://beautynfashion-wp.vercel.app/$1 [R=302,L]
+
+# 3. If visitor reaches admin.abeautynfashion.com root, redirect to wp-admin
+RewriteCond %{HTTP_HOST} ^admin\.abeautynfashion\.com$ [NC]
 RewriteCond %{REQUEST_URI} ^/?$
 RewriteRule ^$ /wp-admin/ [R=302,L]
 </IfModule>
