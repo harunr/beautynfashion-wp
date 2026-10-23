@@ -8,6 +8,13 @@ import {
 } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/lib/i18n/context";
+import {
+  getRobotsConfig,
+  getOrganizationSchema,
+  getWebSiteSchema,
+  SITE_CONFIG,
+} from "@/lib/seo";
+import JsonLd from "@/components/seo/JsonLd";
 
 const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
@@ -46,10 +53,13 @@ const hindSiliguri = Hind_Siliguri({
 });
 
 export const metadata: Metadata = {
-  title: "ABeauty & Fashion — Premium Beauty, Skincare & Fashion",
-  description:
-    "Curated multi-brand skincare, makeup, hair care, and beauty tools. 100% genuine products with fast delivery across Bangladesh and worldwide.",
-  metadataBase: new URL("https://www.abeautynfashion.com"),
+  title: {
+    default: "ABeauty & Fashion — Premium Beauty, Skincare & Fashion",
+    template: "%s | ABeauty & Fashion",
+  },
+  description: SITE_CONFIG.description,
+  metadataBase: new URL(SITE_CONFIG.url),
+  robots: getRobotsConfig(),
   alternates: {
     canonical: "/",
     languages: {
@@ -59,12 +69,25 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "ABeauty & Fashion — Premium Beauty & Fashion",
-    description:
-      "Curated multi-brand skincare, makeup, hair care, and beauty tools.",
-    url: "https://www.abeautynfashion.com",
-    siteName: "ABeauty & Fashion",
+    description: SITE_CONFIG.description,
+    url: SITE_CONFIG.url,
+    siteName: SITE_CONFIG.name,
     locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: SITE_CONFIG.ogImage,
+        width: 1200,
+        height: 630,
+        alt: SITE_CONFIG.name,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ABeauty & Fashion — Premium Beauty & Fashion",
+    description: SITE_CONFIG.description,
+    images: [SITE_CONFIG.ogImage],
   },
 };
 
@@ -73,8 +96,15 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const orgSchema = getOrganizationSchema();
+  const webSiteSchema = getWebSiteSchema();
+
   return (
     <html lang="en">
+      <head>
+        <JsonLd data={orgSchema} />
+        <JsonLd data={webSiteSchema} />
+      </head>
       <body
         className={`${bricolage.variable} ${dmSans.variable} ${instrumentSerif.variable} ${anekBangla.variable} ${hindSiliguri.variable} antialiased`}
       >

@@ -17,6 +17,8 @@ import AnnouncementBar from "@/components/layout/AnnouncementBar";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { useLanguage } from "@/lib/i18n/context";
+import { getProductSchema, getBreadcrumbSchema } from "@/lib/seo";
+import JsonLd from "@/components/seo/JsonLd";
 
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
   const { lang, t, formatPrice, toBnDigits } = useLanguage();
@@ -86,8 +88,29 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
     setTimeout(() => setAddedToBag(false), 2000);
   };
 
+  const productSchema = getProductSchema({
+    id: params.id,
+    name: product.titleEn,
+    description: product.descriptionEn,
+    price: product.basePriceUSD,
+    regularPrice: product.wasPriceUSD,
+    sku: `ABF-SK-00${params.id}`,
+    category: "Skincare",
+    rating: product.rating,
+    reviewCount: product.reviewsCount,
+    inStock: true,
+  });
+
+  const breadcrumbSchema = getBreadcrumbSchema([
+    { name: "Home", url: "/" },
+    { name: "Shop", url: "/shop" },
+    { name: product.titleEn, url: `/product/${params.id}` },
+  ]);
+
   return (
     <div className="min-h-screen flex flex-col bg-white">
+      <JsonLd data={productSchema} />
+      <JsonLd data={breadcrumbSchema} />
       <AnnouncementBar />
       <Header />
 
