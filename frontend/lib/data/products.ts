@@ -112,7 +112,7 @@ export const CATEGORIES: Category[] = [
     nameEn: "Bath & Body",
     nameBn: "বাথ ও বডি",
     slug: "bath-body",
-    image: "https://images.unsplash.com/photo-1608248597359-009187ec09a9?q=80&w=600&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=600&auto=format&fit=crop",
     itemCount: 16,
     descriptionEn: "Whipped shea butters, nourishing cleansing oils, and gentle exfoliating body scrubs.",
     descriptionBn: "ত্বকের কোমলতার জন্য সুবাসিত বডি বাটার, পুষ্টিকর শাওয়ার অয়েল ও স্ক্রাব।",
@@ -156,7 +156,7 @@ export const PRODUCTS: Product[] = [
         labelBn: "সামনের দৃশ্য",
       },
       {
-        src: "https://images.unsplash.com/photo-1608248597359-009187ec09a9?q=80&w=800&auto=format&fit=crop",
+        src: "https://images.unsplash.com/photo-1617897903246-719242758050?q=80&w=800&auto=format&fit=crop",
         alt: "Serum Texture and Dropper",
         labelEn: "Texture",
         labelBn: "টেক্সচার",
@@ -209,7 +209,7 @@ export const PRODUCTS: Product[] = [
     ],
     images: [
       {
-        src: "https://images.unsplash.com/photo-1608248597359-009187ec09a9?q=80&w=800&auto=format&fit=crop",
+        src: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?q=80&w=800&auto=format&fit=crop",
         alt: "Hydra-Barrier Ceramide Cream Jar",
         labelEn: "Front View",
         labelBn: "সামনের দৃশ্য",
@@ -674,7 +674,7 @@ export const PRODUCTS: Product[] = [
     ],
     images: [
       {
-        src: "https://images.unsplash.com/photo-1608248597359-009187ec09a9?q=80&w=800&auto=format&fit=crop",
+        src: "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?q=80&w=800&auto=format&fit=crop",
         alt: "Rosemary Hair Oil Dropper Bottle",
         labelEn: "Dropper",
         labelBn: "ড্রপার বোতল",
@@ -818,13 +818,13 @@ export const PRODUCTS: Product[] = [
     ],
     images: [
       {
-        src: "https://images.unsplash.com/photo-1607006314144-846399066f1d?q=80&w=800&auto=format&fit=crop",
+        src: "https://images.unsplash.com/photo-1556228720-195a672e8a03?q=80&w=800&auto=format&fit=crop",
         alt: "Whipped Shea Body Butter Glass Jar",
         labelEn: "Jar",
         labelBn: "জার",
       },
       {
-        src: "https://images.unsplash.com/photo-1608248597359-009187ec09a9?q=80&w=800&auto=format&fit=crop",
+        src: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?q=80&w=800&auto=format&fit=crop",
         alt: "Whipped Cream Texture",
         labelEn: "Texture",
         labelBn: "টেক্সচার",
