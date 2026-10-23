@@ -19,11 +19,13 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { useLanguage } from "@/lib/i18n/context";
 import { useCart } from "@/lib/cart/context";
+import { useStoreSettings } from "@/lib/wordpress/context";
 import { CATEGORIES, PRODUCTS, Product } from "@/lib/data/products";
 
 export default function HomePage() {
   const { lang, t, formatPrice, toBnDigits } = useLanguage();
   const { addToCart, toggleWishlist, isInWishlist } = useCart();
+  const settings = useStoreSettings();
   const [addedItemId, setAddedItemId] = useState<number | null>(null);
 
   const handleQuickAdd = (product: Product, e: React.MouseEvent) => {
@@ -35,6 +37,45 @@ export default function HomePage() {
   };
 
   const trendingProducts = PRODUCTS.slice(0, 8);
+
+  const heroEyebrow =
+    lang === "bn"
+      ? settings.hero_eyebrow_bn || t.hero.eyebrow
+      : settings.hero_eyebrow_en || t.hero.eyebrow;
+
+  const heroTitlePrefix =
+    lang === "bn"
+      ? settings.hero_title_prefix_bn || t.hero.titlePrefix
+      : settings.hero_title_prefix_en || t.hero.titlePrefix;
+
+  const heroTitleAccent =
+    lang === "bn" ? "" : (settings.hero_title_accent_en || t.hero.titleAccent);
+
+  const heroTitleSuffix =
+    lang === "bn" ? "" : (settings.hero_title_suffix_en || t.hero.titleSuffix);
+
+  const heroSubtitle =
+    lang === "bn"
+      ? settings.hero_subtitle_bn || t.hero.subtitle
+      : settings.hero_subtitle_en || t.hero.subtitle;
+
+  const heroCtaShopText =
+    lang === "bn"
+      ? settings.hero_cta_shop_text_bn || t.hero.ctaShop
+      : settings.hero_cta_shop_text_en || t.hero.ctaShop;
+
+  const heroCtaShopUrl = settings.hero_cta_shop_url || "/shop";
+
+  const heroCtaRoutineText =
+    lang === "bn"
+      ? settings.hero_cta_routine_text_bn || t.hero.ctaRoutine
+      : settings.hero_cta_routine_text_en || t.hero.ctaRoutine;
+
+  const heroCtaRoutineUrl = settings.hero_cta_routine_url || "/journal";
+
+  const heroImageUrl =
+    settings.hero_image_url ||
+    "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?q=80&w=900&auto=format&fit=crop";
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -50,7 +91,7 @@ export default function HomePage() {
               <div className="lg:col-span-7 flex flex-col gap-6">
                 <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-pill bg-white text-rose font-semibold text-xs md:text-sm tracking-wide shadow-sm w-fit border border-line">
                   <Sparkles className="w-4 h-4 text-rose" />
-                  <span>{t.hero.eyebrow}</span>
+                  <span>{heroEyebrow}</span>
                 </div>
 
                 <h1
@@ -58,35 +99,37 @@ export default function HomePage() {
                     lang === "bn" ? "font-anek tracking-normal" : "font-bricolage"
                   }`}
                 >
-                  {t.hero.titlePrefix}
-                  <span
-                    className={`text-rose ${
-                      lang === "en" ? "font-instrument italic font-normal" : ""
-                    }`}
-                  >
-                    {t.hero.titleAccent}
-                  </span>
-                  {t.hero.titleSuffix}
+                  {heroTitlePrefix}
+                  {heroTitleAccent && (
+                    <span
+                      className={`text-rose ${
+                        lang === "en" ? "font-instrument italic font-normal" : ""
+                      }`}
+                    >
+                      {heroTitleAccent}
+                    </span>
+                  )}
+                  {heroTitleSuffix}
                 </h1>
 
                 <p className="text-muted text-base md:text-lg lg:text-xl leading-relaxed max-w-xl">
-                  {t.hero.subtitle}
+                  {heroSubtitle}
                 </p>
 
                 <div className="flex flex-wrap items-center gap-4 pt-2">
                   <Link
-                    href="/shop"
+                    href={heroCtaShopUrl}
                     className="h-13 sm:h-14 px-8 rounded-pill bg-ink text-white hover:bg-rose transition-all font-semibold text-sm md:text-base inline-flex items-center justify-center gap-2 shadow-pill"
                   >
-                    <span>{t.hero.ctaShop}</span>
+                    <span>{heroCtaShopText}</span>
                     <ArrowRight className="w-4 h-4" />
                   </Link>
 
                   <Link
-                    href="/journal"
+                    href={heroCtaRoutineUrl}
                     className="h-13 sm:h-14 px-7 rounded-pill bg-transparent text-ink border-2 border-ink hover:bg-ink hover:text-white transition-all font-semibold text-sm md:text-base inline-flex items-center justify-center"
                   >
-                    {t.hero.ctaRoutine}
+                    {heroCtaRoutineText}
                   </Link>
                 </div>
 
@@ -111,7 +154,7 @@ export default function HomePage() {
               <div className="lg:col-span-5 relative flex items-center justify-center">
                 <div className="relative w-full aspect-[4/5] max-w-[440px] rounded-card-lg overflow-hidden shadow-card border-4 border-white bg-blush-200">
                   <Image
-                    src="https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?q=80&w=900&auto=format&fit=crop"
+                    src={heroImageUrl}
                     alt="Luxury skincare serum bottles and botanicals"
                     fill
                     priority
@@ -476,10 +519,14 @@ export default function HomePage() {
                 </div>
                 <div>
                   <h4 className="font-bold text-ink text-sm md:text-base mb-1">
-                    {t.trust.authenticTitle}
+                    {lang === "bn"
+                      ? settings.trust_1_title_bn || t.trust.authenticTitle
+                      : settings.trust_1_title_en || t.trust.authenticTitle}
                   </h4>
                   <p className="text-xs md:text-sm text-muted leading-relaxed">
-                    {t.trust.authenticDesc}
+                    {lang === "bn"
+                      ? settings.trust_1_desc_bn || t.trust.authenticDesc
+                      : settings.trust_1_desc_en || t.trust.authenticDesc}
                   </p>
                 </div>
               </div>
@@ -490,10 +537,14 @@ export default function HomePage() {
                 </div>
                 <div>
                   <h4 className="font-bold text-ink text-sm md:text-base mb-1">
-                    {t.trust.shippingTitle}
+                    {lang === "bn"
+                      ? settings.trust_2_title_bn || t.trust.shippingTitle
+                      : settings.trust_2_title_en || t.trust.shippingTitle}
                   </h4>
                   <p className="text-xs md:text-sm text-muted leading-relaxed">
-                    {t.trust.shippingDesc}
+                    {lang === "bn"
+                      ? settings.trust_2_desc_bn || t.trust.shippingDesc
+                      : settings.trust_2_desc_en || t.trust.shippingDesc}
                   </p>
                 </div>
               </div>
@@ -504,10 +555,14 @@ export default function HomePage() {
                 </div>
                 <div>
                   <h4 className="font-bold text-ink text-sm md:text-base mb-1">
-                    {t.trust.supportTitle}
+                    {lang === "bn"
+                      ? settings.trust_3_title_bn || t.trust.supportTitle
+                      : settings.trust_3_title_en || t.trust.supportTitle}
                   </h4>
                   <p className="text-xs md:text-sm text-muted leading-relaxed">
-                    {t.trust.supportDesc}
+                    {lang === "bn"
+                      ? settings.trust_3_desc_bn || t.trust.supportDesc
+                      : settings.trust_3_desc_en || t.trust.supportDesc}
                   </p>
                 </div>
               </div>
@@ -518,10 +573,14 @@ export default function HomePage() {
                 </div>
                 <div>
                   <h4 className="font-bold text-ink text-sm md:text-base mb-1">
-                    {t.trust.secureTitle}
+                    {lang === "bn"
+                      ? settings.trust_4_title_bn || t.trust.secureTitle
+                      : settings.trust_4_title_en || t.trust.secureTitle}
                   </h4>
                   <p className="text-xs md:text-sm text-muted leading-relaxed">
-                    {t.trust.secureDesc}
+                    {lang === "bn"
+                      ? settings.trust_4_desc_bn || t.trust.secureDesc
+                      : settings.trust_4_desc_en || t.trust.secureDesc}
                   </p>
                 </div>
               </div>

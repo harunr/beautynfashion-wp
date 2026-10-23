@@ -2,10 +2,24 @@
 
 import React from "react";
 import { useLanguage } from "@/lib/i18n/context";
+import { useStoreSettings } from "@/lib/wordpress/context";
 import Link from "next/link";
 
 export default function AnnouncementBar() {
-  const { t } = useLanguage();
+  const { lang, t } = useLanguage();
+  const settings = useStoreSettings();
+
+  // If administrator turned off announcement bar in WordPress Store Customizer
+  if (settings.announcement_active === "0") {
+    return null;
+  }
+
+  const dynamicText =
+    lang === "bn"
+      ? settings.announcement_text_bn || t.announcement.promo
+      : settings.announcement_text_en || t.announcement.promo;
+
+  const dynamicLink = settings.announcement_link || "/sale";
 
   return (
     <aside
@@ -17,12 +31,11 @@ export default function AnnouncementBar() {
         •
       </span>
       <span>
-        {t.announcement.promo}{" "}
         <Link
-          href="/shop"
-          className="text-white underline hover:text-rose-light transition-colors ml-1 font-semibold"
+          href={dynamicLink}
+          className="text-white hover:text-rose-light underline decoration-rose-light underline-offset-2 transition-colors font-semibold"
         >
-          {t.announcement.promoLink}
+          {dynamicText}
         </Link>
       </span>
       <span aria-hidden="true" className="opacity-40 hidden sm:inline">

@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Search, User, Heart, ShoppingBag, Menu, X, ArrowRight } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/context";
 import { useCart } from "@/lib/cart/context";
+import { useStoreSettings } from "@/lib/wordpress/context";
 
 interface HeaderProps {
   onOpenMobileMenu?: () => void;
@@ -17,8 +18,40 @@ export default function Header({ onOpenMobileMenu, cartCount }: HeaderProps) {
   const router = useRouter();
   const { lang, setLang, t, toBnDigits } = useLanguage();
   const { itemsCount, openCart, wishlistIds } = useCart();
+  const settings = useStoreSettings();
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const menuItems = settings.primary_menu && settings.primary_menu.length > 0
+    ? settings.primary_menu
+    : [
+        { id: 1, title: "Shop All", url: "/shop" },
+        { id: 2, title: "Skincare", url: "/category/skincare" },
+        { id: 3, title: "Makeup", url: "/category/makeup" },
+        { id: 4, title: "Hair Care", url: "/category/hair-care" },
+        { id: 5, title: "Beauty Tools", url: "/category/beauty-tools" },
+        { id: 6, title: "Journal", url: "/journal" },
+        { id: 7, title: "Sale", url: "/sale" },
+      ];
+
+  const getMenuTitle = (item: { title: string; url: string }) => {
+    if (lang === "bn") {
+      const lower = item.title.toLowerCase();
+      if (lower.includes("shop")) return t.nav.shopAll;
+      if (lower.includes("skin")) return t.nav.skincare;
+      if (lower.includes("make")) return t.nav.makeup;
+      if (lower.includes("hair")) return t.nav.hairCare;
+      if (lower.includes("tool")) return t.nav.beautyTools;
+      if (lower.includes("journal")) return t.nav.journal;
+      if (lower.includes("sale")) return t.nav.sale;
+    }
+    return item.title;
+  };
+
+  const searchPlaceholder =
+    lang === "bn"
+      ? settings.header_search_placeholder_bn || t.nav.searchPlaceholder
+      : settings.header_search_placeholder_en || t.nav.searchPlaceholder;
 
   // Use dynamic cart count from CartContext or fallback to prop
   const effectiveCount = cartCount !== undefined ? cartCount : itemsCount;
@@ -56,7 +89,7 @@ export default function Header({ onOpenMobileMenu, cartCount }: HeaderProps) {
 
             <Link href="/" className="flex items-center" aria-label="ABeauty & Fashion Home">
               <Image
-                src="/logo.png"
+                src={settings.header_logo_url || "/logo.png"}
                 alt="ABeauty & Fashion"
                 width={160}
                 height={44}
@@ -71,30 +104,22 @@ export default function Header({ onOpenMobileMenu, cartCount }: HeaderProps) {
             aria-label={lang === "bn" ? "প্রধান মেনু" : "Main Navigation"}
             className="hidden lg:flex items-center gap-6 xl:gap-8 text-[15px] font-medium"
           >
-            <Link href="/shop" className="hover:text-rose transition-colors">
-              {t.nav.shopAll}
-            </Link>
-            <Link href="/category/skincare" className="hover:text-rose transition-colors">
-              {t.nav.skincare}
-            </Link>
-            <Link href="/category/makeup" className="hover:text-rose transition-colors">
-              {t.nav.makeup}
-            </Link>
-            <Link href="/category/hair-care" className="hover:text-rose transition-colors">
-              {t.nav.hairCare}
-            </Link>
-            <Link href="/category/beauty-tools" className="hover:text-rose transition-colors">
-              {t.nav.beautyTools}
-            </Link>
-            <Link href="/journal" className="hover:text-rose transition-colors">
-              {t.nav.journal}
-            </Link>
-            <Link
-              href="/sale"
-              className="text-rose font-bold hover:text-rose-dark transition-colors"
-            >
-              {t.nav.sale}
-            </Link>
+            {menuItems.map((item) => {
+              const isSale = item.url.includes("sale");
+              return (
+                <Link
+                  key={item.id || item.url}
+                  href={item.url}
+                  className={
+                    isSale
+                      ? "text-rose font-bold hover:text-rose-dark transition-colors"
+                      : "hover:text-rose transition-colors"
+                  }
+                >
+                  {getMenuTitle(item)}
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Right: Search, Language Switcher, Account, Wishlist, Cart */}
@@ -109,7 +134,7 @@ export default function Header({ onOpenMobileMenu, cartCount }: HeaderProps) {
                 type="search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={t.nav.searchPlaceholder}
+                placeholder={searchPlaceholder}
                 className="bg-transparent border-0 outline-none w-full text-sm text-ink placeholder:text-muted"
               />
             </form>
@@ -201,7 +226,7 @@ export default function Header({ onOpenMobileMenu, cartCount }: HeaderProps) {
             {/* Mobile Header */}
             <div className="p-4 border-b border-line flex items-center justify-between bg-blush-50">
               <Image
-                src="/logo.png"
+                src={settings.header_logo_url || "/logo.png"}
                 alt="ABeauty & Fashion"
                 width={140}
                 height={38}
@@ -230,7 +255,7 @@ export default function Header({ onOpenMobileMenu, cartCount }: HeaderProps) {
                   type="search"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={t.nav.searchPlaceholder}
+                  placeholder={searchPlaceholder}
                   className="bg-transparent border-0 outline-none w-full text-sm text-ink placeholder:text-muted"
                 />
               </form>
@@ -238,68 +263,45 @@ export default function Header({ onOpenMobileMenu, cartCount }: HeaderProps) {
 
             {/* Mobile Nav Links */}
             <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-1">
-              <Link
-                href="/shop"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between p-3 rounded-card hover:bg-blush-50 font-semibold text-ink"
-              >
-                <span>{t.nav.shopAll}</span>
-                <ArrowRight className="w-4 h-4 text-muted" />
-              </Link>
-              <Link
-                href="/category/skincare"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between p-3 rounded-card hover:bg-blush-50 font-semibold text-ink"
-              >
-                <span>{t.nav.skincare}</span>
-                <ArrowRight className="w-4 h-4 text-muted" />
-              </Link>
-              <Link
-                href="/category/makeup"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between p-3 rounded-card hover:bg-blush-50 font-semibold text-ink"
-              >
-                <span>{t.nav.makeup}</span>
-                <ArrowRight className="w-4 h-4 text-muted" />
-              </Link>
-              <Link
-                href="/category/hair-care"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between p-3 rounded-card hover:bg-blush-50 font-semibold text-ink"
-              >
-                <span>{t.nav.hairCare}</span>
-                <ArrowRight className="w-4 h-4 text-muted" />
-              </Link>
-              <Link
-                href="/category/beauty-tools"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between p-3 rounded-card hover:bg-blush-50 font-semibold text-ink"
-              >
-                <span>{t.nav.beautyTools}</span>
-                <ArrowRight className="w-4 h-4 text-muted" />
-              </Link>
-              <Link
-                href="/journal"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between p-3 rounded-card hover:bg-blush-50 font-semibold text-ink"
-              >
-                <span>{t.nav.journal}</span>
-                <ArrowRight className="w-4 h-4 text-muted" />
-              </Link>
-              <Link
-                href="/sale"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between p-3 rounded-card bg-rose/10 text-rose font-bold"
-              >
-                <span>{t.nav.sale}</span>
-                <span className="text-xs bg-rose text-white px-2 py-0.5 rounded-pill">
-                  {lang === "bn" ? "৪০% ছাড়" : "40% OFF"}
-                </span>
-              </Link>
+              {menuItems.map((item) => {
+                const isSale = item.url.includes("sale");
+                return (
+                  <Link
+                    key={item.id || item.url}
+                    href={item.url}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={
+                      isSale
+                        ? "flex items-center justify-between p-3 rounded-card bg-rose/10 text-rose font-bold"
+                        : "flex items-center justify-between p-3 rounded-card hover:bg-blush-50 font-semibold text-ink"
+                    }
+                  >
+                    <span>{getMenuTitle(item)}</span>
+                    {isSale ? (
+                      <span className="text-xs bg-rose text-white px-2 py-0.5 rounded-pill">
+                        {lang === "bn" ? "৪০% ছাড়" : "40% OFF"}
+                      </span>
+                    ) : (
+                      <ArrowRight className="w-4 h-4 text-muted" />
+                    )}
+                  </Link>
+                );
+              })}
             </div>
 
-            {/* Mobile Footer */}
+            {/* Mobile Footer with Hotline */}
             <div className="p-4 border-t border-line bg-blush-50/50 flex flex-col gap-3">
+              {settings.header_hotline && (
+                <div className="flex items-center justify-between text-xs text-muted pb-2 border-b border-line/60">
+                  <span>{lang === "bn" ? "হটলাইন:" : "Hotline:"}</span>
+                  <a
+                    href={`tel:${settings.header_hotline.replace(/\s+/g, "")}`}
+                    className="font-bold text-rose hover:underline"
+                  >
+                    {settings.header_hotline}
+                  </a>
+                </div>
+              )}
               <Link
                 href="/account"
                 onClick={() => setMobileMenuOpen(false)}

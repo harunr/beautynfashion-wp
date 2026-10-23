@@ -17,6 +17,8 @@ import {
   SITE_CONFIG,
 } from "@/lib/seo";
 import JsonLd from "@/components/seo/JsonLd";
+import { fetchStoreSettings } from "@/lib/wordpress/settings";
+import { StoreSettingsProvider } from "@/lib/wordpress/context";
 
 const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
@@ -93,11 +95,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const storeSettings = await fetchStoreSettings();
   const orgSchema = getOrganizationSchema();
   const webSiteSchema = getWebSiteSchema();
 
@@ -110,12 +113,14 @@ export default function RootLayout({
       <body
         className={`${bricolage.variable} ${dmSans.variable} ${instrumentSerif.variable} ${anekBangla.variable} ${hindSiliguri.variable} antialiased`}
       >
-        <LanguageProvider>
-          <CartProvider>
-            {children}
-            <CartDrawer />
-          </CartProvider>
-        </LanguageProvider>
+        <StoreSettingsProvider initialSettings={storeSettings}>
+          <LanguageProvider>
+            <CartProvider>
+              {children}
+              <CartDrawer />
+            </CartProvider>
+          </LanguageProvider>
+        </StoreSettingsProvider>
       </body>
     </html>
   );
