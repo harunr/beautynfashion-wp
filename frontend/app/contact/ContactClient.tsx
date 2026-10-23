@@ -14,13 +14,25 @@ import {
   ChevronRight,
   CheckCircle2,
   Send,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
 import { WordPressPage } from "@/lib/wordpress/pages";
 
 export default function ContactClient({ wpPage }: { wpPage: WordPressPage | null }) {
   const { lang, t } = useLanguage();
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+
+  const [form, setForm] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    subject: "",
+    message: "",
+  });
 
   const acf = (wpPage?.acf || {}) as Record<string, string | undefined>;
 
@@ -35,7 +47,38 @@ export default function ContactClient({ wpPage }: { wpPage: WordPressPage | null
     acf.contact_hours ||
     (lang === "bn" ? "শনিবার – বৃহস্পতিবার: সকাল ১০টা – রাত ১০টা" : "Saturday – Thursday: 10:00 AM – 10:00 PM");
 
-  const whatsappLink = `https://wa.me/${whatsapp.replace(/[^0-9]/g, "")}`;
+  const cleanWhatsappNumber = whatsapp.replace(/[^0-9]/g, "");
+  const whatsappLink = `https://wa.me/${cleanWhatsappNumber}`;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...form,
+          source: "contact-page",
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to send message. Please try again.");
+      }
+
+      setSubmitted(true);
+      setForm({ name: "", phone: "", email: "", subject: "", message: "" });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "An unexpected error occurred. Please try again or reach out on WhatsApp.";
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const faqs = [
     {
@@ -201,27 +244,51 @@ export default function ContactClient({ wpPage }: { wpPage: WordPressPage | null
               </p>
 
               {submitted ? (
-                <div className="p-8 text-center bg-rose-50 rounded-card border border-rose-200 animate-in fade-in">
-                  <div className="w-12 h-12 bg-rose rounded-full text-white flex items-center justify-center mx-auto mb-3">
-                    <CheckCircle2 className="w-6 h-6" />
+                <div className="p-8 text-center bg-rose-50/60 rounded-card border border-rose-200 animate-in fade-in space-y-4">
+                  <div className="w-14 h-14 bg-rose rounded-full text-white flex items-center justify-center mx-auto shadow-sm">
+                    <CheckCircle2 className="w-7 h-7" />
                   </div>
-                  <h3 className="font-serif text-lg font-bold text-ink mb-1">
-                    {lang === "bn" ? "বার্তা সফলভাবে পাঠানো হয়েছে!" : "Message Sent Successfully!"}
-                  </h3>
-                  <p className="text-xs text-muted max-w-sm mx-auto">
-                    {lang === "bn"
-                      ? "আমাদের প্রতিনিধি শীঘ্রই আপনার ইমেইল বা হোয়াটসঅ্যাপে যোগাযোগ করবেন।"
-                      : "Thank you for reaching out. We will review your message and reply via email or phone shortly."}
-                  </p>
+                  <div>
+                    <h3 className="font-serif text-xl font-bold text-ink mb-1.5">
+                      {lang === "bn" ? "বার্তা সফলভাবে পাঠানো হয়েছে!" : "Message Sent Successfully!"}
+                    </h3>
+                    <p className="text-xs md:text-sm text-muted max-w-md mx-auto leading-relaxed">
+                      {lang === "bn"
+                        ? "ধন্যবাদ! আপনার বার্তাটি আমাদের টিমের কাছে পৌঁছেছে। আমাদের প্রতিনিধি দ্রুত আপনার সাথে যোগাযোগ করবেন।"
+                        : "Thank you for reaching out! Your inquiry has been received by our beauty concierge team and we will respond promptly."}
+                    </p>
+                  </div>
+
+                  <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setSubmitted(false)}
+                      className="w-full sm:w-auto px-6 h-11 rounded-pill border border-line bg-white text-ink hover:border-rose text-xs font-bold transition-colors"
+                    >
+                      {lang === "bn" ? "আরেকটি বার্তা পাঠান" : "Send Another Message"}
+                    </button>
+                    <a
+                      href={whatsappLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full sm:w-auto px-6 h-11 rounded-pill bg-[#25D366] hover:bg-[#20ba59] text-white text-xs font-bold transition-all inline-flex items-center justify-center gap-2 shadow-sm"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      <span>{lang === "bn" ? "হোয়াটসঅ্যাপে দ্রুত উত্তর পান" : "Chat on WhatsApp"}</span>
+                    </a>
+                  </div>
                 </div>
               ) : (
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    setSubmitted(true);
-                  }}
-                  className="space-y-4"
-                >
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  {error && (
+                    <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-card text-rose text-xs flex items-start gap-2.5">
+                      <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-semibold">{error}</p>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-ink mb-1.5">
@@ -230,6 +297,8 @@ export default function ContactClient({ wpPage }: { wpPage: WordPressPage | null
                       <input
                         type="text"
                         required
+                        value={form.name}
+                        onChange={(e) => setForm({ ...form, name: e.target.value })}
                         placeholder={lang === "bn" ? "যেমন: মারিয়া আক্তার" : "e.g. Maria Akter"}
                         className="w-full h-11 px-3.5 rounded-card border border-line text-sm text-ink outline-none focus:border-rose transition-colors"
                       />
@@ -241,6 +310,8 @@ export default function ContactClient({ wpPage }: { wpPage: WordPressPage | null
                       <input
                         type="tel"
                         required
+                        value={form.phone}
+                        onChange={(e) => setForm({ ...form, phone: e.target.value })}
                         placeholder="+880 1700 000000"
                         className="w-full h-11 px-3.5 rounded-card border border-line text-sm text-ink outline-none focus:border-rose transition-colors"
                       />
@@ -249,11 +320,12 @@ export default function ContactClient({ wpPage }: { wpPage: WordPressPage | null
 
                   <div>
                     <label className="block text-xs font-bold text-ink mb-1.5">
-                      {lang === "bn" ? "ইমেইল এড্রেস *" : "Email Address *"}
+                      {lang === "bn" ? "ইমেইল এড্রেস" : "Email Address"}
                     </label>
                     <input
                       type="email"
-                      required
+                      value={form.email}
+                      onChange={(e) => setForm({ ...form, email: e.target.value })}
                       placeholder="your.email@example.com"
                       className="w-full h-11 px-3.5 rounded-card border border-line text-sm text-ink outline-none focus:border-rose transition-colors"
                     />
@@ -261,11 +333,12 @@ export default function ContactClient({ wpPage }: { wpPage: WordPressPage | null
 
                   <div>
                     <label className="block text-xs font-bold text-ink mb-1.5">
-                      {lang === "bn" ? "বিষয় *" : "Subject *"}
+                      {lang === "bn" ? "বিষয়" : "Subject"}
                     </label>
                     <input
                       type="text"
-                      required
+                      value={form.subject}
+                      onChange={(e) => setForm({ ...form, subject: e.target.value })}
                       placeholder={
                         lang === "bn"
                           ? "অর্ডার স্ট্যাটাস, পণ্য পরামর্শ বা অন্যান্য"
@@ -282,6 +355,8 @@ export default function ContactClient({ wpPage }: { wpPage: WordPressPage | null
                     <textarea
                       required
                       rows={5}
+                      value={form.message}
+                      onChange={(e) => setForm({ ...form, message: e.target.value })}
                       placeholder={
                         lang === "bn"
                           ? "আপনার অর্ডার আইডি বা বিস্তারিত মতামত এখানে লিখুন..."
@@ -291,13 +366,35 @@ export default function ContactClient({ wpPage }: { wpPage: WordPressPage | null
                     />
                   </div>
 
-                  <button
-                    type="submit"
-                    className="w-full sm:w-auto px-8 h-12 rounded-pill bg-rose text-white hover:bg-rose-dark font-semibold text-sm transition-all inline-flex items-center justify-center gap-2 shadow-pill"
-                  >
-                    <span>{lang === "bn" ? "বার্তা পাঠান" : "Submit Message"}</span>
-                    <Send className="w-4 h-4" />
-                  </button>
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="px-8 h-12 rounded-pill bg-rose text-white hover:bg-rose-dark disabled:opacity-70 font-semibold text-sm transition-all inline-flex items-center justify-center gap-2 shadow-pill"
+                    >
+                      {loading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>{lang === "bn" ? "পাঠানো হচ্ছে..." : "Sending..."}</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>{lang === "bn" ? "বার্তা পাঠান" : "Submit Message"}</span>
+                          <Send className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+
+                    <a
+                      href={whatsappLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-6 h-12 rounded-pill border border-emerald-500/30 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 text-xs font-bold transition-all inline-flex items-center justify-center gap-2"
+                    >
+                      <MessageCircle className="w-4 h-4 text-emerald-600" />
+                      <span>{lang === "bn" ? "অথবা হোয়াটসঅ্যাপে সরাসরি কথা বলুন" : "Or Chat Directly on WhatsApp"}</span>
+                    </a>
+                  </div>
                 </form>
               )}
             </div>

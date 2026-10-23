@@ -208,6 +208,89 @@ class ABF_Store_Customizer {
                 return current_user_can( 'manage_options' );
             },
         ] );
+
+        // Contact & Support Chat Inquiries API
+        register_rest_route( 'abf/v1', '/contact-inquiry', [
+            'methods'  => 'POST',
+            'callback' => [ $this, 'handle_contact_inquiry' ],
+            'permission_callback' => '__return_true',
+        ] );
+
+        register_rest_route( 'abf/v1', '/inquiries', [
+            'methods'  => 'GET',
+            'callback' => function() {
+                $inquiries = get_option( 'abf_customer_inquiries', [] );
+                return rest_ensure_response( array_values( array_reverse( $inquiries ) ) );
+            },
+            'permission_callback' => function() {
+                return current_user_can( 'manage_options' );
+            },
+        ] );
+    }
+
+    /**
+     * Handle incoming contact inquiries from storefront
+     */
+    public function handle_contact_inquiry( $request ) {
+        $params = $request->get_json_params();
+        if ( empty( $params ) ) {
+            $params = $request->get_body_params();
+        }
+
+        $name = sanitize_text_field( $params['name'] ?? 'Website Visitor' );
+        $phone = sanitize_text_field( $params['phone'] ?? '' );
+        $email = sanitize_email( $params['email'] ?? '' );
+        $subject = sanitize_text_field( $params['subject'] ?? 'New Customer Inquiry' );
+        $message = sanitize_textarea_field( $params['message'] ?? '' );
+        $source = sanitize_text_field( $params['source'] ?? 'contact-page' );
+
+        if ( empty( $message ) && empty( $phone ) ) {
+            return new WP_Error( 'missing_fields', 'Please provide a message or contact number', [ 'status' => 400 ] );
+        }
+
+        $inquiry = [
+            'id'        => uniqid( 'inq_' ),
+            'name'      => $name,
+            'phone'     => $phone,
+            'email'     => $email,
+            'subject'   => $subject,
+            'message'   => $message,
+            'source'    => $source,
+            'date'      => current_time( 'mysql' ),
+            'status'    => 'new',
+        ];
+
+        $inquiries = get_option( 'abf_customer_inquiries', [] );
+        if ( ! is_array( $inquiries ) ) {
+            $inquiries = [];
+        }
+        $inquiries[] = $inquiry;
+        if ( count( $inquiries ) > 200 ) {
+            $inquiries = array_slice( $inquiries, -200 );
+        }
+        update_option( 'abf_customer_inquiries', $inquiries, false );
+
+        // Send notification email to admin
+        $admin_email = get_option( 'admin_email' );
+        $email_subject = "[ABeauty & Fashion] New Inquiry: " . $name . " (" . $source . ")";
+        $email_body = "You received a new inquiry from ABeauty & Fashion storefront:\n\n"
+                    . "Name: " . $name . "\n"
+                    . "Phone: " . $phone . "\n"
+                    . "Email: " . $email . "\n"
+                    . "Subject: " . $subject . "\n"
+                    . "Source: " . $source . "\n"
+                    . "Date: " . current_time( 'r' ) . "\n\n"
+                    . "Message:\n" . $message . "\n\n"
+                    . "---\n"
+                    . "Reply directly via WhatsApp or view all in WordPress > Store Customizer > Customer Inquiries";
+
+        wp_mail( $admin_email, $email_subject, $email_body );
+
+        return rest_ensure_response( [
+            'success' => true,
+            'message' => 'Thank you! Your message has been received. Our beauty concierge will get in touch shortly.',
+            'inquiry_id' => $inquiry['id'],
+        ] );
     }
 
     /**
@@ -216,6 +299,22 @@ class ABF_Store_Customizer {
     public function render_settings_page() {
         $settings = $this->get_settings();
         $active_tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'header';
+
+        // Handle inquiry deletion and clearing
+        if ( isset( $_GET['inq_action'] ) && current_user_can( 'manage_options' ) ) {
+            $inquiries = get_option( 'abf_customer_inquiries', [] );
+            if ( $_GET['inq_action'] === 'delete' && ! empty( $_GET['inq_id'] ) && check_admin_referer( 'abf_inquiry_action' ) ) {
+                $target_id = sanitize_text_field( $_GET['inq_id'] );
+                $inquiries = array_filter( $inquiries, function( $i ) use ( $target_id ) {
+                    return ( $i['id'] ?? '' ) !== $target_id;
+                } );
+                update_option( 'abf_customer_inquiries', array_values( $inquiries ), false );
+                echo '<div class="notice notice-success is-dismissible" style="border-left-color: #e11d48;"><p>Inquiry deleted successfully.</p></div>';
+            } elseif ( $_GET['inq_action'] === 'clear_all' && check_admin_referer( 'abf_inquiry_action' ) ) {
+                update_option( 'abf_customer_inquiries', [], false );
+                echo '<div class="notice notice-success is-dismissible" style="border-left-color: #e11d48;"><p>All inquiries have been cleared.</p></div>';
+            }
+        }
         ?>
         <div class="wrap" style="max-width: 1100px;">
             <h1 style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
@@ -239,6 +338,13 @@ class ABF_Store_Customizer {
                 <a href="?page=abf-store-settings&tab=footer" class="nav-tab <?php echo $active_tab === 'footer' ? 'nav-tab-active' : ''; ?>">Footer & Social Links</a>
                 <a href="?page=abf-store-settings&tab=nav" class="nav-tab <?php echo $active_tab === 'nav' ? 'nav-tab-active' : ''; ?>">Navigation Menu</a>
                 <a href="?page=abf-store-settings&tab=pages" class="nav-tab <?php echo $active_tab === 'pages' ? 'nav-tab-active' : ''; ?>">Core Pages & ACF Fields</a>
+                <?php $inquiry_count = count( get_option('abf_customer_inquiries', []) ); ?>
+                <a href="?page=abf-store-settings&tab=inquiries" class="nav-tab <?php echo $active_tab === 'inquiries' ? 'nav-tab-active' : ''; ?>">
+                    Customer Inquiries
+                    <?php if ( $inquiry_count > 0 ) : ?>
+                        <span style="background: #e11d48; color: #fff; border-radius: 10px; padding: 1px 7px; font-size: 11px; margin-left: 4px; font-weight: bold;"><?php echo $inquiry_count; ?></span>
+                    <?php endif; ?>
+                </a>
             </h2>
 
             <form method="post" action="options.php" style="background: #fff; padding: 25px 30px; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
@@ -620,11 +726,139 @@ class ABF_Store_Customizer {
                             </tr>
                         </tbody>
                     </table>
+
+                <!-- TAB 7: CUSTOMER INQUIRIES & CHAT MESSAGES -->
+                <?php elseif ( $active_tab === 'inquiries' ) : ?>
+                    <?php
+                    $all_inquiries = get_option( 'abf_customer_inquiries', [] );
+                    if ( ! is_array( $all_inquiries ) ) {
+                        $all_inquiries = [];
+                    }
+                    $reversed_inquiries = array_reverse( $all_inquiries );
+                    ?>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 12px; margin-top: 0; margin-bottom: 16px;">
+                        <div>
+                            <h3 style="margin: 0 0 4px 0; font-size: 18px; color: #0f172a;">Customer Inquiries &amp; Live Chat Messages</h3>
+                            <p style="margin: 0; color: #64748b; font-size: 13px;">Messages submitted via the Contact Us form and the storefront Live Support Chat widget.</p>
+                        </div>
+                        <?php if ( ! empty( $all_inquiries ) ) : ?>
+                            <a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?page=abf-store-settings&tab=inquiries&inq_action=clear_all' ), 'abf_inquiry_action' ) ); ?>" 
+                               class="button button-link-delete" 
+                               onclick="return confirm('Are you sure you want to delete all inquiries? This action cannot be undone.');"
+                               style="color: #e11d48; text-decoration: none; font-weight: 600;">
+                               Clear All Inquiries
+                            </a>
+                        <?php endif; ?>
+                    </div>
+
+                    <?php if ( empty( $all_inquiries ) ) : ?>
+                        <div style="padding: 60px 20px; text-align: center; color: #94a3b8;">
+                            <span class="dashicons dashicons-format-chat" style="font-size: 48px; width: 48px; height: 48px; margin-bottom: 12px; color: #cbd5e1;"></span>
+                            <h4 style="margin: 0 0 6px 0; color: #475569; font-size: 16px;">No customer inquiries yet</h4>
+                            <p style="margin: 0; font-size: 13px;">When customers submit the contact form or leave a message via the support chat widget, their details will appear here with 1-click WhatsApp reply actions.</p>
+                        </div>
+                    <?php else : ?>
+                        <table class="wp-list-table widefat fixed striped">
+                            <thead>
+                                <tr>
+                                    <th style="width: 140px;">Date &amp; Time</th>
+                                    <th style="width: 180px;">Customer</th>
+                                    <th style="width: 120px;">Source</th>
+                                    <th>Message &amp; Subject</th>
+                                    <th style="width: 170px;">Quick Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ( $reversed_inquiries as $inq ) : 
+                                    $raw_phone = $inq['phone'] ?? '';
+                                    $clean_phone = preg_replace( '/[^0-9]/', '', $raw_phone );
+                                    if ( strpos( $clean_phone, '01' ) === 0 && strlen( $clean_phone ) === 11 ) {
+                                        $clean_phone = '88' . $clean_phone;
+                                    }
+                                    $customer_name = $inq['name'] ?? 'Website Visitor';
+                                    $wa_text = rawurlencode( "Hello " . $customer_name . ", thank you for contacting ABeauty & Fashion regarding your inquiry. How may we assist you further today?" );
+                                    $wa_url = ! empty( $clean_phone ) ? "https://wa.me/{$clean_phone}?text={$wa_text}" : '';
+                                    $is_chat = ( $inq['source'] ?? '' ) === 'live-support-chat';
+                                ?>
+                                    <tr>
+                                        <td>
+                                            <div style="font-size: 12px; color: #475569; font-weight: 500;">
+                                                <?php echo esc_html( date( 'M j, Y', strtotime( $inq['date'] ?? 'now' ) ) ); ?>
+                                            </div>
+                                            <div style="font-size: 11px; color: #94a3b8;">
+                                                <?php echo esc_html( date( 'g:i A', strtotime( $inq['date'] ?? 'now' ) ) ); ?>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style="font-weight: 600; color: #0f172a; margin-bottom: 2px;">
+                                                <?php echo esc_html( $customer_name ); ?>
+                                            </div>
+                                            <?php if ( ! empty( $inq['phone'] ) ) : ?>
+                                                <div style="font-size: 12px;">
+                                                    <a href="tel:<?php echo esc_attr( $inq['phone'] ); ?>" style="color: #0284c7; text-decoration: none;">
+                                                        📞 <?php echo esc_html( $inq['phone'] ); ?>
+                                                    </a>
+                                                </div>
+                                            <?php endif; ?>
+                                            <?php if ( ! empty( $inq['email'] ) ) : ?>
+                                                <div style="font-size: 12px;">
+                                                    <a href="mailto:<?php echo esc_attr( $inq['email'] ); ?>" style="color: #64748b; text-decoration: none;">
+                                                        ✉️ <?php echo esc_html( $inq['email'] ); ?>
+                                                    </a>
+                                                </div>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>
+                                            <?php if ( $is_chat ) : ?>
+                                                <span class="badge" style="background: #fdf2f8; color: #be185d; border: 1px solid #fbcfe8; padding: 3px 8px; border-radius: 9999px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                                                    💬 Live Chat
+                                                </span>
+                                            <?php else : ?>
+                                                <span class="badge" style="background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; padding: 3px 8px; border-radius: 9999px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                                                    ✉️ Contact Page
+                                                </span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>
+                                            <?php if ( ! empty( $inq['subject'] ) && $inq['subject'] !== 'New Customer Inquiry' ) : ?>
+                                                <div style="font-weight: 600; font-size: 13px; color: #1e293b; margin-bottom: 4px;">
+                                                    <?php echo esc_html( $inq['subject'] ); ?>
+                                                </div>
+                                            <?php endif; ?>
+                                            <div style="font-size: 13px; line-height: 1.5; color: #334155; white-space: pre-wrap; background: #f8fafc; padding: 8px 12px; border-radius: 6px; border: 1px solid #e2e8f0;"><?php echo esc_html( $inq['message'] ?? '' ); ?></div>
+                                        </td>
+                                        <td>
+                                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                                                <?php if ( ! empty( $wa_url ) ) : ?>
+                                                    <a href="<?php echo esc_url( $wa_url ); ?>" target="_blank" class="button button-small" style="background: #25D366; color: #fff; border-color: #1ebe5d; font-weight: 600; text-align: center;">
+                                                        WhatsApp Reply ↗
+                                                    </a>
+                                                <?php endif; ?>
+                                                <div style="display: flex; gap: 6px;">
+                                                    <?php if ( ! empty( $inq['phone'] ) ) : ?>
+                                                        <a href="tel:<?php echo esc_attr( $inq['phone'] ); ?>" class="button button-small" title="Call Customer">Call</a>
+                                                    <?php endif; ?>
+                                                    <a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?page=abf-store-settings&tab=inquiries&inq_action=delete&inq_id=' . urlencode( $inq['id'] ?? '' ) ), 'abf_inquiry_action' ) ); ?>" 
+                                                       class="button button-small button-link-delete" 
+                                                       onclick="return confirm('Delete this inquiry?');"
+                                                       style="color: #ef4444;">
+                                                       Delete
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    <?php endif; ?>
                 <?php endif; ?>
 
-                <p class="submit" style="margin-top: 25px; padding-top: 15px; border-top: 1px solid #f1f5f9;">
-                    <input type="submit" name="submit" id="submit" class="button button-primary button-large" style="background: #e11d48; border-color: #be123c; padding: 0 25px; height: 40px; font-weight: bold;" value="Save All Changes" />
-                </p>
+                <?php if ( in_array( $active_tab, [ 'header', 'hero', 'trust', 'footer' ], true ) ) : ?>
+                    <p class="submit" style="margin-top: 25px; padding-top: 15px; border-top: 1px solid #f1f5f9;">
+                        <input type="submit" name="submit" id="submit" class="button button-primary button-large" style="background: #e11d48; border-color: #be123c; padding: 0 25px; height: 40px; font-weight: bold;" value="Save All Changes" />
+                    </p>
+                <?php endif; ?>
             </form>
         </div>
         <?php

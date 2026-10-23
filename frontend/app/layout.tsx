@@ -10,6 +10,7 @@ import "./globals.css";
 import { LanguageProvider } from "@/lib/i18n/context";
 import { CartProvider } from "@/lib/cart/context";
 import CartDrawer from "@/components/cart/CartDrawer";
+import SupportChat from "@/components/chat/SupportChat";
 import {
   getRobotsConfig,
   getOrganizationSchema,
@@ -118,6 +119,7 @@ export default async function RootLayout({
             <CartProvider>
               {children}
               <CartDrawer />
+              <SupportChat />
             </CartProvider>
           </LanguageProvider>
         </StoreSettingsProvider>
