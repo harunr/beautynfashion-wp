@@ -8,6 +8,8 @@ import {
 } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/lib/i18n/context";
+import { CartProvider } from "@/lib/cart/context";
+import CartDrawer from "@/components/cart/CartDrawer";
 import {
   getRobotsConfig,
   getOrganizationSchema,
@@ -108,7 +110,12 @@ export default function RootLayout({
       <body
         className={`${bricolage.variable} ${dmSans.variable} ${instrumentSerif.variable} ${anekBangla.variable} ${hindSiliguri.variable} antialiased`}
       >
-        <LanguageProvider>{children}</LanguageProvider>
+        <LanguageProvider>
+          <CartProvider>
+            {children}
+            <CartDrawer />
+          </CartProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

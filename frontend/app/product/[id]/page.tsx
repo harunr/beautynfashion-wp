@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   Star,
@@ -12,24 +13,46 @@ import {
   Check,
   Plus,
   Minus,
+  ArrowRight,
+  RotateCcw,
 } from "lucide-react";
 import AnnouncementBar from "@/components/layout/AnnouncementBar";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { useLanguage } from "@/lib/i18n/context";
+import { useCart } from "@/lib/cart/context";
+import {
+  getProductById,
+  getProductBySlug,
+  getRelatedProducts,
+  PRODUCTS,
+} from "@/lib/data/products";
 import { getProductSchema, getBreadcrumbSchema } from "@/lib/seo";
 import JsonLd from "@/components/seo/JsonLd";
 
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
   const { lang, t, formatPrice, toBnDigits } = useLanguage();
+  const { addToCart, toggleWishlist, isInWishlist } = useCart();
 
-  const [activeImage, setActiveImage] = useState(0);
-  const [selectedSize, setSelectedSize] = useState<"30ml" | "50ml">("30ml");
+  // Find product by slug or id, fallback to product #11
+  const rawProduct =
+    getProductBySlug(params.id) ||
+    getProductById(params.id) ||
+    PRODUCTS[0];
+
+  const product = rawProduct;
+
+  const [activeImageIdx, setActiveImageIdx] = useState(0);
+  const [selectedSize, setSelectedSize] = useState<string | undefined>(
+    product.sizes?.[0]
+  );
+  const [selectedShade, setSelectedShade] = useState<string | undefined>(
+    product.shades?.[0]?.nameEn
+  );
   const [quantity, setQuantity] = useState(1);
-  const [isWishlisted, setIsWishlisted] = useState(false);
-  const [addedToBag, setAddedToBag] = useState(false);
+  const [addedSuccess, setAddedSuccess] = useState(false);
 
-  // Accordion toggle states
+  // Accordion state
   const [openAccordions, setOpenAccordions] = useState<{ [key: string]: boolean }>({
     details: true,
     howToUse: false,
@@ -41,256 +64,319 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
     setOpenAccordions((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const product = {
-    id: params.id,
-    titleEn: "Radiant Glow Niacinamide 10% + Zinc Serum",
-    titleBn: "রেডিয়েন্ট গ্লো নিয়াসিনামাইড ১০% + জিংক সিরাম",
-    brand: "GlowRecipe",
-    categoryEn: "Skincare • Serums",
-    categoryBn: "স্কিনকেয়ার • সিরাম",
-    rating: 4.9,
-    reviewsCount: 212,
-    basePriceUSD: selectedSize === "30ml" ? 28.0 : 42.0,
-    basePriceBDT: selectedSize === "30ml" ? 3150 : 4750,
-    wasPriceUSD: selectedSize === "30ml" ? 35.0 : 50.0,
-    wasPriceBDT: selectedSize === "30ml" ? 3900 : 5600,
-    descriptionEn:
-      "A lightweight, water-based serum clinically proven to refine pore appearance, regulate sebum production, and brighten uneven skin tone with 10% pure Niacinamide and 1% soothing Zinc PCA.",
-    descriptionBn:
-      "হালকা ও দ্রুত শোষণযোগ্য ওয়াটার-বেসড সিরাম যা লোমকূপের দৃশ্যমানতা কমাতে, ত্বকের অতিরিক্ত তেল নিয়ন্ত্রণ করতে এবং রোদে পোড়া ভাব দূর করে উজ্জ্বলতা বাড়াতে কার্যকরী। এতে রয়েছে ১০% নিয়াসিনামাইড ও ১% জিংক পিসিএ।",
-    tags: [
-      { en: "Hydrating", bn: "হাইড্রেটিং" },
-      { en: "Pore-Refining", bn: "পোর-রিফাইনিং" },
-      { en: "Fragrance-Free", bn: "সুগন্ধিমুক্ত" },
-      { en: "Dermatologist Tested", bn: "ডার্মাটোলজিস্ট টেস্টেড" },
-    ],
-    details: {
-      en: "Formulated without parabens, sulfates, synthetic fragrance, or essential oils. Non-comedogenic and ideal for daily morning and evening use.",
-      bn: "প্যারাবেন, সালফেট, কৃত্রিম সুগন্ধি বা ক্ষতিকর কেমিক্যাল মুক্ত। নন-কমেডোজেনিক এবং প্রতিদিন সকাল ও রাতে ব্যবহারের জন্য সম্পূর্ণ নিরাপদ।",
-    },
-    howToUse: {
-      en: "Apply 2-3 drops to clean face in the morning and evening before heavier creams. Gently pat into skin until absorbed. Follow with moisturizer and SPF.",
-      bn: "সকাল ও রাতে মুখ পরিষ্কার করার পর ২-৩ ফোঁটা সিরাম পুরো মুখে আলতো করে মেখে নিন। ক্রিম বা ময়েশ্চারাইজার ব্যবহারের আগে সিরাম লাগান। দিনে অবশ্যই সানস্ক্রিন ব্যবহার করুন।",
-    },
-    ingredients:
-      "Aqua (Water), Niacinamide, Pentylene Glycol, Zinc PCA, Dimethyl Isosorbide, Tamarindus Indica Seed Gum, Xanthan Gum, Isoceteth-20, Ethoxydiglycol, Phenoxyethanol, Chlorphenesin.",
-  };
+  const isWishlisted = isInWishlist(product.id);
 
-  const images = [
-    { tint: "bg-tint-1", label: "Front" },
-    { tint: "bg-tint-2", label: "Texture" },
-    { tint: "bg-tint-4", label: "In Hand" },
-    { tint: "bg-tint-6", label: "Packaging" },
-  ];
+  // Price adjustment if size is larger
+  const isLargeSize = selectedSize?.includes("50ml") || selectedSize?.includes("100ml");
+  const priceUSD = isLargeSize ? product.priceUSD * 1.35 : product.priceUSD;
+  const priceBDT = isLargeSize ? Math.round(product.priceBDT * 1.35) : product.priceBDT;
+  const wasUSD = product.wasUSD
+    ? isLargeSize
+      ? product.wasUSD * 1.35
+      : product.wasUSD
+    : undefined;
+  const wasBDT = product.wasBDT
+    ? isLargeSize
+      ? Math.round(product.wasBDT * 1.35)
+      : product.wasBDT
+    : undefined;
 
   const handleAddToCart = () => {
-    setAddedToBag(true);
-    setTimeout(() => setAddedToBag(false), 2000);
+    addToCart(product, quantity, selectedSize, selectedShade);
+    setAddedSuccess(true);
+    setTimeout(() => setAddedSuccess(false), 2000);
   };
 
+  const relatedProducts = getRelatedProducts(product.id, product.categorySlug, 4);
+
+  const title = lang === "bn" ? product.titleBn : product.titleEn;
+  const categoryTitle = lang === "bn" ? product.categoryBn : product.categoryEn;
+  const ratingFormatted = lang === "bn" ? toBnDigits(product.rating) : product.rating;
+  const reviewsFormatted = lang === "bn" ? toBnDigits(product.reviewsCount) : product.reviewsCount;
+  const stockFormatted = lang === "bn" ? toBnDigits(product.stockQuantity) : product.stockQuantity;
+
+  // SEO Schemas
   const productSchema = getProductSchema({
-    id: params.id,
+    id: product.id,
     name: product.titleEn,
     description: product.descriptionEn,
-    price: product.basePriceUSD,
-    regularPrice: product.wasPriceUSD,
-    sku: `ABF-SK-00${params.id}`,
-    category: "Skincare",
+    price: product.priceUSD,
+    regularPrice: product.wasUSD,
+    sku: product.sku,
+    category: product.categoryEn,
     rating: product.rating,
     reviewCount: product.reviewsCount,
-    inStock: true,
+    inStock: product.inStock,
+    images: product.images.map((img) => img.src),
   });
 
   const breadcrumbSchema = getBreadcrumbSchema([
-    { name: "Home", url: "/" },
-    { name: "Shop", url: "/shop" },
-    { name: product.titleEn, url: `/product/${params.id}` },
+    { name: "Home", item: "/" },
+    { name: product.categoryEn, item: `/category/${product.categorySlug}` },
+    { name: product.titleEn, item: `/product/${product.slug || product.id}` },
   ]);
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <JsonLd data={productSchema} />
       <JsonLd data={breadcrumbSchema} />
+
       <AnnouncementBar />
       <Header />
 
       <main className="flex-1">
-        {/* Breadcrumb */}
-        <div className="border-b border-line bg-blush-50/50 py-3.5">
-          <div className="max-w-container mx-auto px-4 md:px-8 lg:px-14">
-            <nav aria-label="Breadcrumb" className="text-xs md:text-sm text-muted flex items-center gap-2">
-              <Link href="/" className="hover:text-rose transition-colors">
-                {lang === "bn" ? "হোম" : "Home"}
-              </Link>
-              <span>/</span>
-              <Link href="/shop" className="hover:text-rose transition-colors">
-                {lang === "bn" ? "স্কিনকেয়ার" : "Skincare"}
-              </Link>
-              <span>/</span>
-              <span className="text-ink font-semibold line-clamp-1">
-                {lang === "bn" ? product.titleBn : product.titleEn}
-              </span>
-            </nav>
+        {/* ================= BREADCRUMBS ================= */}
+        <nav
+          aria-label="Breadcrumbs"
+          className="bg-blush-50/70 border-b border-line py-3 text-xs"
+        >
+          <div className="max-w-container mx-auto px-4 md:px-8 lg:px-14 flex items-center gap-2 text-muted">
+            <Link href="/" className="hover:text-rose transition-colors">
+              {lang === "bn" ? "হোম" : "Home"}
+            </Link>
+            <span>/</span>
+            <Link
+              href={`/category/${product.categorySlug}`}
+              className="hover:text-rose transition-colors"
+            >
+              {categoryTitle}
+            </Link>
+            <span>/</span>
+            <span className="font-semibold text-ink line-clamp-1 max-w-xs sm:max-w-md">
+              {title}
+            </span>
           </div>
-        </div>
+        </nav>
 
-        {/* Product Section */}
+        {/* ================= MAIN PRODUCT DETAIL ================= */}
         <section className="py-10 md:py-16">
           <div className="max-w-container mx-auto px-4 md:px-8 lg:px-14">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 xl:gap-14 items-start">
-              {/* Product Gallery Area */}
-              <div className="lg:col-span-6 flex flex-col-reverse md:flex-row gap-4">
-                {/* Thumbnails vertical rail */}
-                <div className="flex md:flex-col gap-3 shrink-0 overflow-x-auto md:overflow-visible">
-                  {images.map((img, idx) => (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
+              {/* ================= LEFT: IMAGE GALLERY ================= */}
+              <div className="lg:col-span-7 flex flex-col-reverse sm:flex-row gap-4">
+                {/* Thumbnails */}
+                <div className="flex sm:flex-col gap-3 overflow-x-auto sm:overflow-visible shrink-0 pb-2 sm:pb-0">
+                  {product.images.map((img, idx) => (
                     <button
                       key={idx}
                       type="button"
-                      onClick={() => setActiveImage(idx)}
-                      className={`w-18 h-18 md:w-20 md:h-24 rounded-card ${img.tint} flex items-center justify-center border-2 transition-all p-2 ${
-                        activeImage === idx ? "border-ink shadow-sm" : "border-transparent opacity-75 hover:opacity-100"
+                      onClick={() => setActiveImageIdx(idx)}
+                      className={`relative w-16 h-20 sm:w-20 sm:h-24 rounded-card overflow-hidden bg-blush-100 transition-all border-2 ${
+                        activeImageIdx === idx
+                          ? "border-rose shadow-sm"
+                          : "border-line opacity-70 hover:opacity-100"
                       }`}
                     >
-                      <Sparkles className="w-6 h-6 text-rose" />
+                      <Image
+                        src={img.src}
+                        alt={img.alt}
+                        fill
+                        sizes="80px"
+                        className="object-cover"
+                      />
                     </button>
                   ))}
                 </div>
 
-                {/* Main Image Showcase */}
-                <div
-                  className={`relative flex-1 aspect-[4/5] rounded-card-lg ${images[activeImage].tint} p-8 flex items-center justify-center overflow-hidden border border-line shadow-card`}
-                >
-                  <span className="absolute left-4 top-4 px-3 py-1 rounded-pill bg-white text-xs font-bold text-ink shadow-sm">
-                    {lang === "bn" ? "বেস্টসেলার" : "Bestseller"}
-                  </span>
+                {/* Main Hero Image */}
+                <div className="relative flex-1 aspect-[4/5] rounded-card-lg overflow-hidden bg-blush-100 border border-line shadow-card">
+                  {product.images[activeImageIdx] && (
+                    <Image
+                      src={product.images[activeImageIdx].src}
+                      alt={product.images[activeImageIdx].alt}
+                      fill
+                      priority
+                      sizes="(max-width: 1024px) 100vw, 600px"
+                      className="object-cover transition-transform duration-500 hover:scale-105"
+                    />
+                  )}
 
-                  <Sparkles className="w-28 h-28 md:w-36 md:h-36 text-rose/50" />
+                  {/* Badge */}
+                  {product.badgeEn && (
+                    <span
+                      className={`absolute left-4 top-4 px-3 py-1.5 rounded-pill text-xs font-bold shadow-sm ${
+                        product.isSale ? "bg-rose text-white" : "bg-white/95 text-ink"
+                      }`}
+                    >
+                      {lang === "bn" ? product.badgeBn : product.badgeEn}
+                    </span>
+                  )}
 
-                  <span className="absolute bottom-4 left-4 text-xs font-bold text-muted bg-white/80 backdrop-blur-sm px-3 py-1 rounded-pill">
-                    {lang === "bn" ? "১০০% আসল প্রোডাক্টের নিশ্চয়তা" : "100% Authentic Guarantee"}
-                  </span>
+                  {/* Wishlist Button */}
+                  <button
+                    type="button"
+                    onClick={() => toggleWishlist(product.id)}
+                    aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                    className="absolute right-4 top-4 w-10 h-10 rounded-full bg-white/90 hover:bg-white text-ink shadow-md flex items-center justify-center transition-colors"
+                  >
+                    <Heart
+                      className={`w-5 h-5 ${
+                        isWishlisted ? "fill-rose text-rose" : "text-muted"
+                      }`}
+                    />
+                  </button>
                 </div>
               </div>
 
-              {/* Product Details & Actions */}
-              <div className="lg:col-span-6 flex flex-col gap-6">
+              {/* ================= RIGHT: PRODUCT DETAILS & BUY BOX ================= */}
+              <div className="lg:col-span-5 flex flex-col gap-6">
+                {/* Brand & Category */}
                 <div>
-                  <span className="text-xs font-bold uppercase tracking-wider text-rose">
-                    {lang === "bn" ? product.categoryBn : product.categoryEn}
-                  </span>
+                  <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-muted mb-2">
+                    <span className="text-rose">{product.brand}</span>
+                    <span>SKU: {product.sku}</span>
+                  </div>
+
                   <h1
-                    className={`text-2xl sm:text-3xl md:text-4xl font-bold text-ink mt-2 leading-tight ${
+                    className={`text-2xl sm:text-3xl md:text-4xl font-bold text-ink leading-tight ${
                       lang === "bn" ? "font-anek" : "font-bricolage"
                     }`}
                   >
-                    {lang === "bn" ? product.titleBn : product.titleEn}
+                    {title}
                   </h1>
 
-                  {/* Rating summary */}
-                  <div className="flex items-center gap-2 mt-3 text-xs md:text-sm">
-                    <div className="flex items-center text-rose">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 fill-rose" />
-                      ))}
+                  {/* Rating & Stock */}
+                  <div className="flex flex-wrap items-center gap-4 mt-3 text-xs">
+                    <div className="flex items-center gap-1.5">
+                      <div className="flex items-center text-rose">
+                        <Star className="w-4 h-4 fill-rose" />
+                        <Star className="w-4 h-4 fill-rose" />
+                        <Star className="w-4 h-4 fill-rose" />
+                        <Star className="w-4 h-4 fill-rose" />
+                        <Star className="w-4 h-4 fill-rose" />
+                      </div>
+                      <span className="font-bold text-ink">{ratingFormatted}</span>
+                      <span className="text-muted">
+                        ({reviewsFormatted} {t.products.reviews})
+                      </span>
                     </div>
-                    <span className="font-bold text-ink">
-                      {lang === "bn" ? toBnDigits(product.rating) : product.rating}
-                    </span>
-                    <span className="text-muted">
-                      ({lang === "bn" ? toBnDigits(product.reviewsCount) : product.reviewsCount}{" "}
-                      {t.products.reviews})
+
+                    <span className="text-line">•</span>
+
+                    <span className="font-bold text-success flex items-center gap-1">
+                      <Check className="w-3.5 h-3.5" />
+                      {lang === "bn"
+                        ? `স্টকে আছে (আর মাত্র ${stockFormatted} টি)`
+                        : `In Stock (${stockFormatted} left)`}
                     </span>
                   </div>
                 </div>
 
                 {/* Price Display */}
-                <div className="flex items-baseline gap-3 pb-4 border-b border-line">
-                  <span className="text-2xl md:text-3xl font-bold text-ink font-bricolage">
-                    {formatPrice(product.basePriceUSD, product.basePriceBDT)}
+                <div className="flex items-baseline gap-3 py-3 border-y border-line">
+                  <span className="text-3xl sm:text-4xl font-bold text-ink font-bricolage">
+                    {formatPrice(priceUSD, priceBDT)}
                   </span>
-                  <span className="text-strike text-sm md:text-base line-through">
-                    {formatPrice(product.wasPriceUSD, product.wasPriceBDT)}
-                  </span>
-                  <span className="text-xs text-muted font-medium ml-1">
-                    {lang === "bn" ? "ট্যাক্স সহ • ফ্রি ডেলিভারি অফার" : "Tax included"}
-                  </span>
+                  {wasUSD && (
+                    <span className="text-lg text-strike line-through">
+                      {formatPrice(wasUSD, wasBDT)}
+                    </span>
+                  )}
+                  {product.isSale && (
+                    <span className="px-2.5 py-1 rounded-pill bg-rose/10 text-rose font-bold text-xs">
+                      {lang === "bn" ? "বিশেষ অফার" : "Special Offer"}
+                    </span>
+                  )}
                 </div>
 
-                {/* Description */}
-                <p className="text-sm md:text-base text-muted leading-relaxed">
-                  {lang === "bn" ? product.descriptionBn : product.descriptionEn}
+                {/* Short Description */}
+                <p className="text-muted text-sm leading-relaxed">
+                  {lang === "bn" ? product.shortDescBn : product.shortDescEn}
                 </p>
 
-                {/* Benefit Pills */}
+                {/* Key Tags */}
                 <div className="flex flex-wrap gap-2">
                   {product.tags.map((tag, idx) => (
                     <span
                       key={idx}
-                      className="px-3 py-1 rounded-pill bg-[#F8F1F3] text-ink text-xs font-semibold border border-line"
+                      className="px-3 py-1 rounded-pill bg-blush-50 border border-line text-xs font-medium text-ink"
                     >
                       {lang === "bn" ? tag.bn : tag.en}
                     </span>
                   ))}
                 </div>
 
-                {/* Variant Size Picker */}
-                <div className="space-y-2.5 pt-2">
-                  <label className="text-xs font-bold uppercase tracking-wider text-muted">
-                    {lang === "bn" ? "সাইজ নির্বাচন করুন:" : "Select Size:"}
-                  </label>
-                  <div className="flex items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedSize("30ml")}
-                      className={`flex flex-col items-start px-4 py-2.5 rounded-card border-2 text-xs md:text-sm transition-all ${
-                        selectedSize === "30ml"
-                          ? "border-ink bg-blush-50 shadow-sm"
-                          : "border-line bg-white hover:border-ink"
-                      }`}
-                    >
-                      <span className="font-bold text-ink">30 ml</span>
-                      <span className="text-muted text-[11px]">
-                        {formatPrice(28.0, 3150)}
-                      </span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setSelectedSize("50ml")}
-                      className={`flex flex-col items-start px-4 py-2.5 rounded-card border-2 text-xs md:text-sm transition-all ${
-                        selectedSize === "50ml"
-                          ? "border-ink bg-blush-50 shadow-sm"
-                          : "border-line bg-white hover:border-ink"
-                      }`}
-                    >
-                      <span className="font-bold text-ink">50 ml</span>
-                      <span className="text-muted text-[11px]">
-                        {formatPrice(42.0, 4750)}
-                      </span>
-                    </button>
+                {/* Size Selector */}
+                {product.sizes && product.sizes.length > 0 && (
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-ink mb-2">
+                      {lang === "bn" ? "সাইজ নির্বাচন করুন:" : "Select Size:"}
+                    </label>
+                    <div className="flex gap-2">
+                      {product.sizes.map((size) => (
+                        <button
+                          key={size}
+                          type="button"
+                          onClick={() => setSelectedSize(size)}
+                          className={`h-10 px-4 rounded-pill text-xs font-bold border transition-all ${
+                            selectedSize === size
+                              ? "bg-ink text-white border-ink shadow-sm"
+                              : "bg-white text-ink border-line hover:border-line-strong"
+                          }`}
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
 
-                {/* Quantity and Add to Bag Actions */}
-                <div className="flex items-center gap-4 pt-3">
-                  {/* Stepper */}
-                  <div className="flex items-center h-14 px-3 rounded-pill bg-[#F8F1F3] border border-line">
+                {/* Shade Selector */}
+                {product.shades && product.shades.length > 0 && (
+                  <div>
+                    <div className="flex items-center justify-between text-xs mb-2">
+                      <span className="font-bold uppercase tracking-wider text-ink">
+                        {lang === "bn" ? "শেড:" : "Shade:"}
+                      </span>
+                      <span className="font-medium text-muted">
+                        {lang === "bn"
+                          ? product.shades.find((s) => s.nameEn === selectedShade)?.nameBn
+                          : selectedShade}
+                      </span>
+                    </div>
+                    <div className="flex gap-3">
+                      {product.shades.map((shade) => (
+                        <button
+                          key={shade.nameEn}
+                          type="button"
+                          onClick={() => setSelectedShade(shade.nameEn)}
+                          aria-label={shade.nameEn}
+                          className={`w-9 h-9 rounded-full flex items-center justify-center transition-all ${
+                            selectedShade === shade.nameEn
+                              ? "ring-2 ring-ink ring-offset-2 scale-110"
+                              : "opacity-80 hover:opacity-100"
+                          }`}
+                          style={{ backgroundColor: shade.color }}
+                        >
+                          {selectedShade === shade.nameEn && (
+                            <Check className="w-4 h-4 text-white drop-shadow" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Quantity & Add to Bag CTA */}
+                <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                  {/* Quantity Counter */}
+                  <div className="inline-flex items-center border border-line rounded-pill bg-white h-13 px-2 self-start sm:self-auto">
                     <button
                       type="button"
                       onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                       aria-label="Decrease quantity"
-                      className="p-1 hover:text-rose transition-colors"
+                      className="w-9 h-9 flex items-center justify-center hover:bg-blush-100 rounded-full text-ink transition-colors"
                     >
                       <Minus className="w-4 h-4" />
                     </button>
-                    <span className="w-10 text-center font-bold text-sm text-ink">
+                    <span className="w-10 text-center text-sm font-bold text-ink">
                       {lang === "bn" ? toBnDigits(quantity) : quantity}
                     </span>
                     <button
                       type="button"
                       onClick={() => setQuantity((q) => q + 1)}
                       aria-label="Increase quantity"
-                      className="p-1 hover:text-rose transition-colors"
+                      className="w-9 h-9 flex items-center justify-center hover:bg-blush-100 rounded-full text-ink transition-colors"
                     >
                       <Plus className="w-4 h-4" />
                     </button>
@@ -300,55 +386,60 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                   <button
                     type="button"
                     onClick={handleAddToCart}
-                    className="flex-1 h-14 rounded-pill bg-ink text-white hover:bg-rose transition-all font-semibold text-sm md:text-base flex items-center justify-center gap-2 shadow-pill"
+                    className="flex-1 h-13 rounded-pill bg-ink text-white hover:bg-rose transition-all font-bold text-sm md:text-base inline-flex items-center justify-center gap-2 shadow-pill"
                   >
-                    {addedToBag ? (
+                    {addedSuccess ? (
                       <>
                         <Check className="w-5 h-5 text-success" />
                         <span>{lang === "bn" ? "ব্যাগে যোগ করা হয়েছে!" : "Added to Bag!"}</span>
                       </>
                     ) : (
-                      <span>{t.products.addToBag}</span>
+                      <>
+                        <Sparkles className="w-4 h-4" />
+                        <span>{lang === "bn" ? "ব্যাগে যোগ করুন" : "Add to Bag"}</span>
+                      </>
                     )}
                   </button>
-
-                  {/* Wishlist Button */}
-                  <button
-                    type="button"
-                    onClick={() => setIsWishlisted(!isWishlisted)}
-                    aria-label="Toggle wishlist"
-                    className={`w-14 h-14 rounded-full border-2 flex items-center justify-center transition-colors ${
-                      isWishlisted
-                        ? "border-rose bg-blush-100 text-rose"
-                        : "border-line hover:border-ink text-ink bg-white"
-                    }`}
-                  >
-                    <Heart className={`w-5 h-5 ${isWishlisted ? "fill-rose" : ""}`} />
-                  </button>
                 </div>
 
-                {/* Trust Badges Bar */}
-                <div className="grid grid-cols-2 gap-3 p-4 rounded-card bg-blush-50/70 border border-line text-xs font-semibold text-ink">
-                  <div className="flex items-center gap-2">
-                    <Truck className="w-4 h-4 text-rose" />
-                    <span>{lang === "bn" ? "সারা দেশে ক্যাশ অন ডেলিভারি" : "Cash on Delivery Available"}</span>
+                {/* Fast Delivery & Trust Highlights */}
+                <div className="p-4 rounded-card bg-blush-50/70 border border-line flex flex-col gap-2.5 text-xs">
+                  <div className="flex items-center gap-2.5 text-ink font-semibold">
+                    <Truck className="w-4 h-4 text-rose shrink-0" />
+                    <span>
+                      {lang === "bn"
+                        ? "ঢাকার ভেতরে ২৪-৪৮ ঘণ্টায় ও বাইরে ৩-৪ দিনে ডেলিভারি"
+                        : "Fast Delivery: 24-48h in Dhaka, 3-4 days nationwide"}
+                    </span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-rose" />
-                    <span>{lang === "bn" ? "১০০% অথেনটিক পণ্য" : "100% Authentic Product"}</span>
+                  <div className="flex items-center gap-2.5 text-ink font-semibold">
+                    <ShieldCheck className="w-4 h-4 text-rose shrink-0" />
+                    <span>
+                      {lang === "bn"
+                        ? "১০০% খাঁটি পণ্য ও ক্যাশ অন ডেলিভারি সুবিধা"
+                        : "100% Authentic Guarantee & Cash on Delivery"}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2.5 text-ink font-semibold">
+                    <RotateCcw className="w-4 h-4 text-rose shrink-0" />
+                    <span>
+                      {lang === "bn"
+                        ? "৭ দিনের সহজ রিটার্ন ও পরিবর্তন সুবিধা"
+                        : "7-Day Hassle-Free Exchange Policy"}
+                    </span>
                   </div>
                 </div>
 
-                {/* Accordions: Details, How to use, Ingredients, Shipping */}
-                <div className="space-y-3 pt-4 border-t border-line">
-                  {/* Details Accordion */}
-                  <div className="border-b border-line pb-3">
+                {/* ================= ACCORDIONS ================= */}
+                <div className="border-t border-line divide-y divide-line pt-2">
+                  {/* Accordion 1: Details */}
+                  <div className="py-4">
                     <button
                       type="button"
                       onClick={() => toggleAccordion("details")}
-                      className="w-full flex items-center justify-between text-left py-2 font-bold text-sm md:text-base text-ink"
+                      className="w-full flex items-center justify-between text-left font-bold text-sm text-ink"
                     >
-                      <span>{lang === "bn" ? "প্রোডাক্টের বিবরণ ও গুণাগুণ" : "Details & Formula Highlights"}</span>
+                      <span>{lang === "bn" ? "উপাদান ও বিবরণ" : "Formula Details & Benefits"}</span>
                       <ChevronDown
                         className={`w-4 h-4 text-muted transition-transform ${
                           openAccordions.details ? "rotate-180 text-rose" : ""
@@ -356,20 +447,21 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                       />
                     </button>
                     {openAccordions.details && (
-                      <p className="text-xs md:text-sm text-muted mt-2 leading-relaxed pb-2">
-                        {lang === "bn" ? product.details.bn : product.details.en}
-                      </p>
+                      <div className="pt-3 text-xs text-muted leading-relaxed flex flex-col gap-2">
+                        <p>{lang === "bn" ? product.descriptionBn : product.descriptionEn}</p>
+                        <p>{lang === "bn" ? product.detailsBn : product.detailsEn}</p>
+                      </div>
                     )}
                   </div>
 
-                  {/* How to use Accordion */}
-                  <div className="border-b border-line pb-3">
+                  {/* Accordion 2: How to Use */}
+                  <div className="py-4">
                     <button
                       type="button"
                       onClick={() => toggleAccordion("howToUse")}
-                      className="w-full flex items-center justify-between text-left py-2 font-bold text-sm md:text-base text-ink"
+                      className="w-full flex items-center justify-between text-left font-bold text-sm text-ink"
                     >
-                      <span>{lang === "bn" ? "ব্যবহারের সঠিক নিয়ম" : "How to Apply"}</span>
+                      <span>{lang === "bn" ? "ব্যবহারবিধি (How to Use)" : "How to Apply"}</span>
                       <ChevronDown
                         className={`w-4 h-4 text-muted transition-transform ${
                           openAccordions.howToUse ? "rotate-180 text-rose" : ""
@@ -377,20 +469,20 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                       />
                     </button>
                     {openAccordions.howToUse && (
-                      <p className="text-xs md:text-sm text-muted mt-2 leading-relaxed pb-2">
-                        {lang === "bn" ? product.howToUse.bn : product.howToUse.en}
-                      </p>
+                      <div className="pt-3 text-xs text-muted leading-relaxed">
+                        <p>{lang === "bn" ? product.howToUseBn : product.howToUseEn}</p>
+                      </div>
                     )}
                   </div>
 
-                  {/* Ingredients Accordion */}
-                  <div className="border-b border-line pb-3">
+                  {/* Accordion 3: Full Ingredients */}
+                  <div className="py-4">
                     <button
                       type="button"
                       onClick={() => toggleAccordion("ingredients")}
-                      className="w-full flex items-center justify-between text-left py-2 font-bold text-sm md:text-base text-ink"
+                      className="w-full flex items-center justify-between text-left font-bold text-sm text-ink"
                     >
-                      <span>{lang === "bn" ? "উপাদানসমূহ (Ingredients)" : "Full Ingredients (INCI)"}</span>
+                      <span>{lang === "bn" ? "সম্পূর্ণ উপাদান তালিকা" : "Full Ingredients (INCI)"}</span>
                       <ChevronDown
                         className={`w-4 h-4 text-muted transition-transform ${
                           openAccordions.ingredients ? "rotate-180 text-rose" : ""
@@ -398,9 +490,38 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                       />
                     </button>
                     {openAccordions.ingredients && (
-                      <p className="text-xs text-muted mt-2 leading-relaxed font-mono pb-2">
-                        {product.ingredients}
-                      </p>
+                      <div className="pt-3 text-xs text-muted leading-relaxed font-mono bg-blush-50/50 p-3 rounded-card">
+                        <p>{product.ingredientsEn}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Accordion 4: Shipping & Payment */}
+                  <div className="py-4">
+                    <button
+                      type="button"
+                      onClick={() => toggleAccordion("shipping")}
+                      className="w-full flex items-center justify-between text-left font-bold text-sm text-ink"
+                    >
+                      <span>{lang === "bn" ? "ডেলিভারি ও পেমেন্ট" : "Shipping & Payment"}</span>
+                      <ChevronDown
+                        className={`w-4 h-4 text-muted transition-transform ${
+                          openAccordions.shipping ? "rotate-180 text-rose" : ""
+                        }`}
+                      />
+                    </button>
+                    {openAccordions.shipping && (
+                      <div className="pt-3 text-xs text-muted leading-relaxed flex flex-col gap-1.5">
+                        <p>
+                          <strong>{lang === "bn" ? "ঢাকার ভেতরে:" : "Inside Dhaka:"}</strong> $0.75 (~৳80). {lang === "bn" ? "$50 বা ৳6000 টাকার অর্ডারে ফ্রি ডেলিভারি।" : "Free on orders over $50."}
+                        </p>
+                        <p>
+                          <strong>{lang === "bn" ? "ঢাকার বাইরে:" : "Outside Dhaka:"}</strong> $1.20 (~৳130). {lang === "bn" ? "$80 বা ৳9500 টাকার অর্ডারে ফ্রি ডেলিভারি।" : "Free on orders over $80."}
+                        </p>
+                        <p>
+                          <strong>{lang === "bn" ? "পেমেন্ট মাধ্যম:" : "Payment Methods:"}</strong> {lang === "bn" ? "ক্যাশ অন ডেলিভারি (COD), বিকাশ, নগদ ও ভিসা/মাস্টারকার্ড।" : "Cash on Delivery, bKash, Nagad, Visa & MasterCard."}
+                        </p>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -408,6 +529,80 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             </div>
           </div>
         </section>
+
+        {/* ================= RELATED PRODUCTS ================= */}
+        {relatedProducts.length > 0 && (
+          <section className="py-16 bg-blush-50/60 border-t border-line">
+            <div className="max-w-container mx-auto px-4 md:px-8 lg:px-14">
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2
+                    className={`text-2xl md:text-3xl font-bold text-ink ${
+                      lang === "bn" ? "font-anek" : "font-bricolage"
+                    }`}
+                  >
+                    {lang === "bn" ? "সম্পর্কিত অন্যান্য পণ্য" : "You May Also Adore"}
+                  </h2>
+                  <p className="text-muted text-xs md:text-sm mt-1">
+                    {lang === "bn"
+                      ? "একই ক্যাটাগরির অন্যান্য জনপ্রিয় ও পরীক্ষিত ফর্মুলা"
+                      : "Handpicked formula pairings from the same collection"}
+                  </p>
+                </div>
+
+                <Link
+                  href={`/category/${product.categorySlug}`}
+                  className="text-xs md:text-sm font-semibold text-rose hover:text-rose-dark transition-colors inline-flex items-center gap-1"
+                >
+                  <span>{lang === "bn" ? "আরও দেখুন" : "View All"}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {relatedProducts.map((rel) => {
+                  const relTitle = lang === "bn" ? rel.titleBn : rel.titleEn;
+                  const relCategory = lang === "bn" ? rel.categoryBn : rel.categoryEn;
+
+                  return (
+                    <article
+                      key={rel.id}
+                      className="group bg-white rounded-card p-4 border border-line hover:border-line-strong hover:shadow-card transition-all flex flex-col justify-between"
+                    >
+                      <div>
+                        <div className="relative w-full aspect-[4/5] rounded-[20px] bg-blush-100 overflow-hidden mb-3 border border-line">
+                          <Link href={`/product/${rel.slug || rel.id}`}>
+                            <Image
+                              src={rel.images[0]?.src || ""}
+                              alt={rel.titleEn}
+                              fill
+                              sizes="(max-width: 640px) 100vw, 25vw"
+                              className="object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                          </Link>
+                        </div>
+                        <span className="text-[11px] font-bold uppercase text-muted tracking-wider block mb-1">
+                          {rel.brand}
+                        </span>
+                        <h3 className="font-bold text-sm text-ink line-clamp-2 hover:text-rose transition-colors mb-2">
+                          <Link href={`/product/${rel.slug || rel.id}`}>{relTitle}</Link>
+                        </h3>
+                      </div>
+                      <div className="pt-2 border-t border-line/60 flex items-baseline justify-between">
+                        <span className="font-bold text-base text-ink font-bricolage">
+                          {formatPrice(rel.priceUSD, rel.priceBDT)}
+                        </span>
+                        <span className="text-[11px] font-semibold text-rose">
+                          {relCategory}
+                        </span>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        )}
       </main>
 
       <Footer />

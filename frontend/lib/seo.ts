@@ -110,16 +110,19 @@ export function getWebSiteSchema() {
 /**
  * BreadcrumbList Schema (JSON-LD)
  */
-export function getBreadcrumbSchema(items: { name: string; url: string }[]) {
+export function getBreadcrumbSchema(items: { name: string; url?: string; item?: string }[]) {
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    itemListElement: items.map((item, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      name: item.name,
-      item: item.url.startsWith("http") ? item.url : `${SITE_CONFIG.url}${item.url}`,
-    })),
+    itemListElement: items.map((item, index) => {
+      const link = item.url || item.item || "/";
+      return {
+        "@type": "ListItem",
+        position: index + 1,
+        name: item.name,
+        item: link.startsWith("http") ? link : `${SITE_CONFIG.url}${link}`,
+      };
+    }),
   };
 }
 
@@ -131,6 +134,7 @@ export function getProductSchema(product: {
   name: string;
   description: string;
   image?: string;
+  images?: string[];
   price: number;
   regularPrice?: number;
   currency?: string;
@@ -141,11 +145,18 @@ export function getProductSchema(product: {
   inStock?: boolean;
 }) {
   const currency = product.currency || "USD";
+  const imageList =
+    product.images && product.images.length > 0
+      ? product.images
+      : product.image
+      ? [product.image]
+      : [SITE_CONFIG.ogImage];
+
   return {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
-    image: product.image ? [product.image] : [SITE_CONFIG.ogImage],
+    image: imageList,
     description: product.description,
     sku: product.sku || `ABF-${product.id}`,
     brand: {
