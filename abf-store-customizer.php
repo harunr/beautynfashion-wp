@@ -269,6 +269,18 @@ class ABF_Store_Customizer {
             'callback' => [ $this, 'handle_auth_orders' ],
             'permission_callback' => '__return_true',
         ] );
+
+        register_rest_route( 'abf/v1', '/checkout/place-order', [
+            'methods'  => 'POST',
+            'callback' => [ $this, 'handle_checkout_place_order' ],
+            'permission_callback' => '__return_true',
+        ] );
+
+        register_rest_route( 'abf/v1', '/orders/track', [
+            'methods'  => 'GET',
+            'callback' => [ $this, 'handle_orders_track' ],
+            'permission_callback' => '__return_true',
+        ] );
     }
 
     /**
@@ -759,6 +771,290 @@ class ABF_Store_Customizer {
         }
 
         return rest_ensure_response( $formatted );
+    }
+
+    /**
+     * REST: Place order via Storefront Checkout
+     */
+    public function handle_checkout_place_order( $request ) {
+        if ( ! function_exists( 'wc_create_order' ) ) {
+            return new WP_Error( 'woocommerce_inactive', 'WooCommerce is not available.', [ 'status' => 500 ] );
+        }
+
+        $params = $request->get_json_params();
+        if ( empty( $params ) ) {
+            $params = $request->get_body_params();
+        }
+
+        // 1. Identify or register customer
+        $customer_id = 0;
+        $auth_token = null;
+        $user_data = null;
+
+        $auth_header = $request->get_header( 'authorization' );
+        $token = str_replace( 'Bearer ', '', $auth_header );
+        if ( ! empty( $token ) ) {
+            $verified_user = $this->verify_auth_token( $token );
+            if ( $verified_user ) {
+                $customer_id = $verified_user->ID;
+            }
+        }
+
+        $full_name = sanitize_text_field( $params['fullName'] ?? '' );
+        $phone = sanitize_text_field( $params['phoneNumber'] ?? '' );
+        $email = sanitize_email( $params['email'] ?? '' );
+        $district = sanitize_text_field( $params['district'] ?? 'Dhaka' );
+        $thana = sanitize_text_field( $params['thana'] ?? '' );
+        $street = sanitize_textarea_field( $params['streetAddress'] ?? '' );
+        $order_notes = sanitize_textarea_field( $params['orderNotes'] ?? '' );
+        $payment_method = sanitize_text_field( $params['paymentMethod'] ?? 'cod' );
+        $create_account = ! empty( $params['createAccount'] );
+        $account_password = $params['accountPassword'] ?? '';
+
+        // If guest opted to create account during checkout
+        if ( empty( $customer_id ) && $create_account && ! empty( $email ) && ! empty( $account_password ) ) {
+            if ( ! email_exists( $email ) ) {
+                $name_parts = explode( ' ', $full_name, 2 );
+                $first = $name_parts[0] ?? '';
+                $last = $name_parts[1] ?? '';
+                $new_id = wc_create_new_customer( $email, '', $account_password );
+                if ( ! is_wp_error( $new_id ) ) {
+                    $customer_id = $new_id;
+                    wp_update_user( [
+                        'ID'           => $new_id,
+                        'display_name' => $full_name,
+                        'first_name'   => $first,
+                        'last_name'    => $last,
+                    ] );
+                    update_user_meta( $new_id, 'billing_phone', $phone );
+                    $new_user = get_userdata( $new_id );
+                    $auth_token = $this->generate_auth_token( $new_user );
+                    $user_data = $this->format_customer_response( $new_user );
+                }
+            } else {
+                $existing_user = wp_authenticate( $email, $account_password );
+                if ( ! is_wp_error( $existing_user ) ) {
+                    $customer_id = $existing_user->ID;
+                    $auth_token = $this->generate_auth_token( $existing_user );
+                    $user_data = $this->format_customer_response( $existing_user );
+                }
+            }
+        }
+
+        // Split name for billing/shipping
+        $name_parts = explode( ' ', $full_name, 2 );
+        $first_name = $name_parts[0] ?? $full_name;
+        $last_name = $name_parts[1] ?? '';
+
+        // 2. Create WooCommerce order
+        $order = wc_create_order( [
+            'customer_id' => $customer_id,
+        ] );
+
+        if ( is_wp_error( $order ) ) {
+            return new WP_Error( 'order_creation_failed', $order->get_error_message(), [ 'status' => 400 ] );
+        }
+
+        // 3. Set address
+        $address = [
+            'first_name' => $first_name,
+            'last_name'  => $last_name,
+            'email'      => $email,
+            'phone'      => $phone,
+            'address_1'  => ! empty( $thana ) ? $street . ', ' . $thana : $street,
+            'city'       => $district,
+            'state'      => $district,
+            'postcode'   => '',
+            'country'    => 'BD',
+        ];
+
+        $order->set_address( $address, 'billing' );
+        $order->set_address( $address, 'shipping' );
+
+        // 4. Add items
+        $items = $params['items'] ?? [];
+        if ( is_array( $items ) ) {
+            foreach ( $items as $item ) {
+                $pid = isset( $item['id'] ) ? absint( $item['id'] ) : 0;
+                $qty = isset( $item['quantity'] ) ? max( 1, absint( $item['quantity'] ) ) : 1;
+                $product = $pid ? wc_get_product( $pid ) : null;
+                if ( $product ) {
+                    $order->add_product( $product, $qty );
+                } else {
+                    $title = sanitize_text_field( $item['titleEn'] ?? $item['titleBn'] ?? 'Product' );
+                    $price = (float) ( $item['priceBDT'] ?? 0 );
+                    $item_fee = new WC_Order_Item_Product();
+                    $item_fee->set_name( $title );
+                    $item_fee->set_quantity( $qty );
+                    $item_fee->set_subtotal( $price * $qty );
+                    $item_fee->set_total( $price * $qty );
+                    $order->add_item( $item_fee );
+                }
+            }
+        }
+
+        // 5. Add shipping fee
+        $shipping_charge = (float) ( $params['shippingCostBDT'] ?? 60 );
+        if ( $shipping_charge >= 0 ) {
+            $is_dhaka = stripos( $district, 'dhaka' ) !== false;
+            $item_shipping = new WC_Order_Item_Shipping();
+            $item_shipping->set_method_title( $is_dhaka ? 'Inside Dhaka Delivery (24-48 Hours)' : 'Outside Dhaka Courier Delivery (3-4 Days)' );
+            $item_shipping->set_method_id( 'flat_rate' );
+            $item_shipping->set_total( $shipping_charge );
+            $order->add_item( $item_shipping );
+        }
+
+        // 6. Set payment method
+        $pm_titles = [
+            'cod'   => 'Cash on Delivery (COD)',
+            'bkash' => 'bKash / Nagad Mobile Banking',
+            'card'  => 'Credit / Debit Card (Visa / Mastercard)',
+        ];
+        $order->set_payment_method( $payment_method );
+        $order->set_payment_method_title( $pm_titles[ $payment_method ] ?? ucfirst( $payment_method ) );
+
+        if ( ! empty( $order_notes ) ) {
+            $order->set_customer_note( $order_notes );
+        }
+
+        // 7. Calculate total and update status
+        $order->calculate_totals();
+        $initial_status = $payment_method === 'cod' ? 'processing' : 'on-hold';
+        $order->update_status( $initial_status, 'Order placed through ABeauty & Fashion storefront.' );
+
+        // 8. If authenticated or newly registered, save addresses to user profile
+        if ( $customer_id ) {
+            update_user_meta( $customer_id, 'billing_first_name', $first_name );
+            update_user_meta( $customer_id, 'billing_last_name', $last_name );
+            update_user_meta( $customer_id, 'billing_phone', $phone );
+            update_user_meta( $customer_id, 'billing_address_1', $address['address_1'] );
+            update_user_meta( $customer_id, 'billing_city', $district );
+            update_user_meta( $customer_id, 'shipping_first_name', $first_name );
+            update_user_meta( $customer_id, 'shipping_last_name', $last_name );
+            update_user_meta( $customer_id, 'shipping_phone', $phone );
+            update_user_meta( $customer_id, 'shipping_address_1', $address['address_1'] );
+            update_user_meta( $customer_id, 'shipping_city', $district );
+        }
+
+        return rest_ensure_response( [
+            'success'      => true,
+            'order_id'     => $order->get_id(),
+            'order_number' => $order->get_order_number(),
+            'status'       => $order->get_status(),
+            'status_label' => wc_get_order_status_name( $order->get_status() ),
+            'total'        => (float) $order->get_total(),
+            'currency'     => $order->get_currency(),
+            'payment'      => $order->get_payment_method_title(),
+            'auth_token'   => $auth_token,
+            'user'         => $user_data,
+        ] );
+    }
+
+    /**
+     * REST: Track order by Order ID + Phone number
+     */
+    public function handle_orders_track( $request ) {
+        if ( ! function_exists( 'wc_get_order' ) ) {
+            return new WP_Error( 'woocommerce_inactive', 'WooCommerce is not available.', [ 'status' => 500 ] );
+        }
+
+        $raw_id = sanitize_text_field( $request->get_param( 'order_id' ) ?? '' );
+        $phone  = sanitize_text_field( $request->get_param( 'phone' ) ?? '' );
+
+        if ( empty( $raw_id ) ) {
+            return new WP_Error( 'missing_order_id', 'Please provide an Order ID.', [ 'status' => 400 ] );
+        }
+
+        $numeric_id = absint( preg_replace( '/[^0-9]/', '', $raw_id ) );
+
+        $order = null;
+        if ( $numeric_id ) {
+            $order = wc_get_order( $numeric_id );
+        }
+
+        if ( ! $order ) {
+            return new WP_Error( 'order_not_found', 'No order found with reference #' . esc_html( $raw_id ) . '. Please check your Order ID.', [ 'status' => 404 ] );
+        }
+
+        $billing_phone = preg_replace( '/[^0-9]/', '', $order->get_billing_phone() );
+        if ( ! empty( $phone ) ) {
+            $input_phone = preg_replace( '/[^0-9]/', '', $phone );
+            $last_billing = substr( $billing_phone, -8 );
+            $last_input   = substr( $input_phone, -8 );
+            if ( $last_billing !== $last_input ) {
+                return new WP_Error( 'phone_mismatch', 'The phone number does not match the order records.', [ 'status' => 403 ] );
+            }
+        }
+
+        $items = [];
+        foreach ( $order->get_items() as $item ) {
+            $items[] = [
+                'name'     => $item->get_name(),
+                'quantity' => $item->get_quantity(),
+                'total'    => (float) $item->get_total(),
+            ];
+        }
+
+        $status = $order->get_status();
+        $date_created = $order->get_date_created();
+        $date_formatted = $date_created ? $date_created->date( 'M j, Y • g:i A' ) : 'Recently';
+
+        $timeline = [];
+        $timeline[] = [
+            'time'    => $date_formatted,
+            'labelEn' => 'Order Placed & Confirmed',
+            'labelBn' => 'অর্ডার প্লেস করা হয়েছে ও নিশ্চিত করা হয়েছে',
+            'done'    => true,
+        ];
+
+        $is_processing = in_array( $status, [ 'processing', 'completed' ] );
+        $timeline[] = [
+            'time'    => $is_processing ? 'In Progress' : 'Pending',
+            'labelEn' => 'Quality Inspected & Packed for Dispatch',
+            'labelBn' => 'পণ্যের মান পরীক্ষা ও প্যাকেজিং সম্পন্ন',
+            'done'    => $is_processing,
+        ];
+
+        $is_shipped = $status === 'completed';
+        $timeline[] = [
+            'time'    => $is_shipped ? 'Handed to Courier' : 'Estimated 24-48h',
+            'labelEn' => 'Handed to Courier Partner (Steadfast / Pathao Express)',
+            'labelBn' => 'কুরিয়ার পার্টনারকে হস্তান্তর করা হয়েছে (স্টেডফাস্ট / পাঠাও)',
+            'done'    => $is_shipped,
+        ];
+
+        $timeline[] = [
+            'time'    => $status === 'completed' ? 'Delivered' : 'Estimated 2-4 Days',
+            'labelEn' => $status === 'completed' ? 'Package Delivered Successfully' : 'Out for Doorstep Delivery',
+            'labelBn' => $status === 'completed' ? 'পার্সেল সফলভাবে ডেলিভারি সম্পন্ন হয়েছে' : 'ডেলিভারির জন্য পাঠানো হয়েছে',
+            'done'    => $status === 'completed',
+        ];
+
+        $status_bn_map = [
+            'processing' => 'প্রক্রিয়াধীন • প্যাকেজিং সম্পন্ন',
+            'completed'  => 'বিতরণ সম্পন্ন (Delivered)',
+            'on-hold'    => 'যাচাই করা হচ্ছে (On-Hold)',
+            'cancelled'  => 'বাতিল করা হয়েছে',
+            'refunded'   => 'মূল্য ফেরত দেওয়া হয়েছে',
+            'pending'    => 'পেমেন্ট মুলতুবি রয়েছে',
+        ];
+
+        return rest_ensure_response( [
+            'success'       => true,
+            'orderNumber'   => $order->get_order_number(),
+            'status'        => $status,
+            'statusEn'      => wc_get_order_status_name( $status ),
+            'statusBn'      => $status_bn_map[ $status ] ?? wc_get_order_status_name( $status ),
+            'courier'       => 'Steadfast / Pathao Express BD',
+            'estDelivery'   => stripos( $order->get_shipping_city(), 'dhaka' ) !== false ? 'Within 24-48 Hours' : '3-4 Business Days',
+            'total'         => (float) $order->get_total(),
+            'currency'      => $order->get_currency(),
+            'paymentMethod' => $order->get_payment_method_title(),
+            'customerName'  => $order->get_formatted_billing_full_name(),
+            'address'       => $order->get_billing_address_1() . ', ' . $order->get_billing_city(),
+            'items'         => $items,
+            'timeline'      => $timeline,
+        ] );
     }
 
     /**

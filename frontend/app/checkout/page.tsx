@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -8,16 +8,22 @@ import {
   Truck,
   CheckCircle2,
   Lock,
-  ArrowRight,
   User,
   MapPin,
   Banknote,
+  Eye,
+  EyeOff,
+  Loader2,
+  AlertCircle,
+  MessageCircle,
+  Sparkles,
 } from "lucide-react";
 import AnnouncementBar from "@/components/layout/AnnouncementBar";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { useLanguage } from "@/lib/i18n/context";
 import { useCart } from "@/lib/cart/context";
+import { useAuth } from "@/lib/auth/context";
 
 const bdDistricts = [
   "Dhaka (ঢাকা)",
@@ -44,6 +50,7 @@ const bdDistricts = [
 
 export default function CheckoutPage() {
   const { lang, formatPrice, toBnDigits } = useLanguage();
+  const { user, isLoggedIn, token, refreshOrders } = useAuth();
   const {
     items,
     itemsCount,
@@ -69,8 +76,36 @@ export default function CheckoutPage() {
   const [streetAddress, setStreetAddress] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "bkash" | "card">("cod");
   const [orderNotes, setOrderNotes] = useState("");
+
+  // Sign up offer during checkout (for guest visitors)
+  const [createAccount, setCreateAccount] = useState(false);
+  const [accountPassword, setAccountPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  // Submission state
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderNumber, setOrderNumber] = useState("");
+  const [accountCreatedDuringOrder, setAccountCreatedDuringOrder] = useState(false);
+
+  // Auto-populate customer details if logged in
+  useEffect(() => {
+    if (user) {
+      if (!fullName) setFullName(user.name || "");
+      if (!email) setEmail(user.email || "");
+      if (!phoneNumber) setPhoneNumber(user.phone || user.shipping?.phone || user.billing?.phone || "");
+      if (user.shipping?.address_1 && !streetAddress) {
+        setStreetAddress(user.shipping.address_1);
+      }
+      if (user.shipping?.city) {
+        const match = bdDistricts.find((d) =>
+          d.toLowerCase().includes((user.shipping.city || "").toLowerCase())
+        );
+        if (match) setDistrict(match);
+      }
+    }
+  }, [user, fullName, email, phoneNumber, streetAddress]);
 
   const handleDistrictChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
@@ -82,12 +117,95 @@ export default function CheckoutPage() {
     }
   };
 
-  const handlePlaceOrder = (e: React.FormEvent) => {
+  const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
-    const randomOrderNum = "ABF-" + Math.floor(100000 + Math.random() * 900000);
-    setOrderNumber(randomOrderNum);
-    setOrderPlaced(true);
-    clearCart();
+    setSubmitError(null);
+
+    if (items.length === 0) {
+      setSubmitError(
+        lang === "bn"
+          ? "আপনার ব্যাগ খালি। অনুগ্রহ করে পণ্য যোগ করুন।"
+          : "Your bag is empty. Please add items before checking out."
+      );
+      return;
+    }
+
+    if (!isLoggedIn && createAccount && accountPassword.length < 6) {
+      setSubmitError(
+        lang === "bn"
+          ? "অ্যাকাউন্ট তৈরির জন্য পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।"
+          : "Password must be at least 6 characters to create an account."
+      );
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const payload = {
+        fullName: fullName.trim(),
+        phoneNumber: phoneNumber.trim(),
+        email: email.trim(),
+        district,
+        thana: thana.trim(),
+        streetAddress: streetAddress.trim(),
+        orderNotes: orderNotes.trim(),
+        paymentMethod,
+        createAccount: !isLoggedIn && createAccount,
+        accountPassword: !isLoggedIn && createAccount ? accountPassword : "",
+        shippingCostBDT,
+        items: items.map((item) => ({
+          id: item.id,
+          titleEn: item.titleEn,
+          titleBn: item.titleBn,
+          priceBDT: item.priceBDT,
+          quantity: item.quantity,
+          image: item.image,
+        })),
+      };
+
+      const res = await fetch("/api/orders/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to process your order. Please try again.");
+      }
+
+      // If user opted to create account during checkout, save session
+      if (data.auth_token && data.user) {
+        try {
+          localStorage.setItem(
+            "abf_customer_auth_v1",
+            JSON.stringify({ token: data.auth_token, user: data.user })
+          );
+          setAccountCreatedDuringOrder(true);
+        } catch (err) {
+          console.warn("Could not save new account session", err);
+        }
+      }
+
+      setOrderNumber(data.order_number || data.order_id?.toString() || "ABF-SUCCESS");
+      setOrderPlaced(true);
+      clearCart();
+
+      // Refresh customer orders in context if authenticated
+      if (token || data.auth_token) {
+        refreshOrders();
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Network error. Please try again.";
+      setSubmitError(msg);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -115,8 +233,8 @@ export default function CheckoutPage() {
 
           {orderPlaced ? (
             /* ================= ORDER SUCCESS VIEW ================= */
-            <div className="max-w-xl mx-auto p-8 rounded-card-lg bg-blush-50 border border-line text-center flex flex-col items-center gap-4 shadow-card">
-              <div className="w-16 h-16 rounded-full bg-success-bg text-success flex items-center justify-center">
+            <div className="max-w-xl mx-auto p-8 rounded-card-lg bg-blush-50 border border-line text-center flex flex-col items-center gap-4 shadow-card animate-in fade-in duration-300">
+              <div className="w-16 h-16 rounded-full bg-success-bg text-success flex items-center justify-center shadow-sm">
                 <CheckCircle2 className="w-10 h-10" />
               </div>
 
@@ -129,19 +247,34 @@ export default function CheckoutPage() {
                 </h2>
                 <p className="text-muted text-sm mt-1">
                   {lang === "bn"
-                    ? `অর্ডার নম্বর: #${orderNumber} • শীঘ্রই আমাদের প্রতিনিধি কল করে কনফার্ম করবেন`
+                    ? `অর্ডার রেফারেন্স নম্বর: #${orderNumber} • শীঘ্রই আমাদের প্রতিনিধি কল করে কনফার্ম করবেন`
                     : `Order reference: #${orderNumber} • Our beauty advisor will call to confirm dispatch.`}
                 </p>
               </div>
 
-              <div className="w-full bg-white rounded-card p-4 border border-line text-xs text-left flex flex-col gap-2 my-2">
+              {accountCreatedDuringOrder && (
+                <div className="w-full p-3.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center justify-center gap-2">
+                  <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>
+                    {lang === "bn"
+                      ? "আপনার অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে! আপনি এখন সাইন-ইন অবস্থায় আছেন।"
+                      : "Your account was successfully created! You are now signed in."}
+                  </span>
+                </div>
+              )}
+
+              <div className="w-full bg-white rounded-card p-4 border border-line text-xs text-left flex flex-col gap-2 my-2 shadow-xs">
+                <div className="flex justify-between">
+                  <span className="text-muted">{lang === "bn" ? "অর্ডার আইডি:" : "Order ID:"}</span>
+                  <span className="font-bold text-ink font-bricolage">#{orderNumber}</span>
+                </div>
                 <div className="flex justify-between">
                   <span className="text-muted">{lang === "bn" ? "গ্রাহকের নাম:" : "Name:"}</span>
                   <span className="font-bold text-ink">{fullName || "Valued Customer"}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted">{lang === "bn" ? "মোবাইল:" : "Phone:"}</span>
-                  <span className="font-bold text-ink">{phoneNumber || "+880 1712-377577"}</span>
+                  <span className="font-bold text-ink">{phoneNumber}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted">{lang === "bn" ? "ডেলিভারি ঠিকানা:" : "Address:"}</span>
@@ -159,12 +292,43 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
+              {/* Action Buttons */}
+              <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+                <Link
+                  href={`/track-order?order_id=${encodeURIComponent(orderNumber)}&phone=${encodeURIComponent(phoneNumber)}`}
+                  className="h-11 rounded-pill bg-ink text-white font-bold text-xs inline-flex items-center justify-center gap-2 hover:bg-rose transition-colors shadow-pill"
+                >
+                  <Truck className="w-4 h-4" />
+                  <span>{lang === "bn" ? "অর্ডার ট্র্যাক করুন" : "Track Your Order"}</span>
+                </Link>
+
+                <Link
+                  href="/account"
+                  className="h-11 rounded-pill bg-[#F8F1F3] hover:bg-blush-200 text-plum font-bold text-xs inline-flex items-center justify-center gap-2 transition-colors border border-line"
+                >
+                  <User className="w-4 h-4" />
+                  <span>{lang === "bn" ? "আমার অ্যাকাউন্টে দেখুন" : "View in My Account"}</span>
+                </Link>
+              </div>
+
+              {/* WhatsApp instant inquiry */}
+              <a
+                href={`https://wa.me/8801811377577?text=${encodeURIComponent(
+                  `Hello ABeauty & Fashion, I just placed Order #${orderNumber} for total ${totalBDT} BDT. Please confirm delivery.`
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full h-11 rounded-pill bg-[#E8F5E9] hover:bg-[#C8E6C9] text-[#1B5E20] font-bold text-xs inline-flex items-center justify-center gap-2 transition-colors"
+              >
+                <MessageCircle className="w-4 h-4" />
+                <span>{lang === "bn" ? "হোয়াটসঅ্যাপে অর্ডার কনফার্ম করুন" : "WhatsApp Quick Confirm"}</span>
+              </a>
+
               <Link
                 href="/shop"
-                className="w-full h-12 rounded-pill bg-ink text-white font-bold text-sm inline-flex items-center justify-center gap-2 hover:bg-rose transition-colors shadow-pill"
+                className="text-xs text-muted hover:text-rose font-semibold transition-colors mt-2"
               >
-                <span>{lang === "bn" ? "আরও কেনাকাটা করুন" : "Return to Store"}</span>
-                <ArrowRight className="w-4 h-4" />
+                ← {lang === "bn" ? "আরও কেনাকাটা করুন" : "Continue Shopping"}
               </Link>
             </div>
           ) : (
@@ -172,6 +336,31 @@ export default function CheckoutPage() {
             <form onSubmit={handlePlaceOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
               {/* Form Left (Shipping & Payment Details) */}
               <div className="lg:col-span-7 flex flex-col gap-8">
+                {/* Logged in notification banner */}
+                {isLoggedIn && user && (
+                  <div className="p-4 rounded-card-lg bg-emerald-50/70 border border-emerald-200 text-emerald-900 text-xs flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center text-xs">
+                        {user.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <span className="font-bold">{lang === "bn" ? "লগইন করা আছে:" : "Signed in as:"}</span>{" "}
+                        {user.name} ({user.email})
+                      </div>
+                    </div>
+                    <Link href="/account" className="text-emerald-700 font-bold hover:underline">
+                      {lang === "bn" ? "অ্যাকাউন্ট" : "Manage"}
+                    </Link>
+                  </div>
+                )}
+
+                {submitError && (
+                  <div className="p-4 rounded-card-lg bg-rose-50 border border-rose-200 text-rose text-xs flex items-start gap-2.5">
+                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                    <span>{submitError}</span>
+                  </div>
+                )}
+
                 {/* 1. Customer Information */}
                 <div className="bg-white p-6 rounded-card-lg border border-line flex flex-col gap-4 shadow-xs">
                   <div className="flex items-center gap-2 font-bold text-lg text-ink font-bricolage border-b border-line pb-3">
@@ -210,10 +399,11 @@ export default function CheckoutPage() {
 
                     <div className="sm:col-span-2">
                       <label className="block font-bold text-ink mb-1.5">
-                        {lang === "bn" ? "ইমেইল এড্রেস (ঐচ্ছিক)" : "Email Address (Optional)"}
+                        {lang === "bn" ? "ইমেইল এড্রেস *" : "Email Address *"}
                       </label>
                       <input
                         type="email"
+                        required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="yourname@gmail.com"
@@ -221,6 +411,58 @@ export default function CheckoutPage() {
                       />
                     </div>
                   </div>
+
+                  {/* SIGN UP OFFER ON CHECKOUT (GUESTS ONLY) */}
+                  {!isLoggedIn && (
+                    <div className="mt-2 pt-4 border-t border-line/70">
+                      <label className="flex items-start gap-2.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={createAccount}
+                          onChange={(e) => setCreateAccount(e.target.checked)}
+                          className="mt-0.5 rounded text-rose focus:ring-rose accent-rose w-4 h-4 cursor-pointer"
+                        />
+                        <div className="flex-1">
+                          <span className="text-xs font-bold text-ink flex items-center gap-1.5">
+                            <Sparkles className="w-3.5 h-3.5 text-rose" />
+                            {lang === "bn"
+                              ? "পরবর্তী দ্রুত চেকআউট ও ট্র্যাকিংয়ের জন্য একটি অ্যাকাউন্ট তৈরি করুন?"
+                              : "Create an account for faster checkout & live tracking next time?"}
+                          </span>
+                          <p className="text-[11px] text-muted mt-0.5">
+                            {lang === "bn"
+                              ? "একটি পাসওয়ার্ড সেট করুন, আপনার অর্ডারটি সরাসরি আপনার নতুন অ্যাকাউন্টে সংরক্ষিত হবে।"
+                              : "Set a password to manage addresses, re-order favorites, and see live tracking."}
+                          </p>
+                        </div>
+                      </label>
+
+                      {createAccount && (
+                        <div className="mt-3 pl-6 animate-in fade-in duration-200">
+                          <label className="block font-bold text-ink text-xs mb-1.5">
+                            {lang === "bn" ? "পাসওয়ার্ড সেট করুন (কমপক্ষে ৬ অক্ষর) *" : "Set Account Password (Min 6 characters) *"}
+                          </label>
+                          <div className="relative max-w-sm">
+                            <input
+                              type={showPassword ? "text" : "password"}
+                              required={createAccount}
+                              value={accountPassword}
+                              onChange={(e) => setAccountPassword(e.target.value)}
+                              placeholder="••••••••"
+                              className="w-full h-10 px-3.5 pr-10 rounded-card bg-[#F8F1F3] border border-line text-ink outline-none focus:border-rose text-xs"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowPassword(!showPassword)}
+                              className="absolute right-3 top-2.5 text-muted hover:text-ink"
+                            >
+                              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* 2. Delivery Address */}
@@ -250,14 +492,14 @@ export default function CheckoutPage() {
 
                     <div>
                       <label className="block font-bold text-ink mb-1.5">
-                        {lang === "bn" ? "থানা / উপজেলা *" : "Thana / Area *"}
+                        {lang === "bn" ? "থানা / এলাকা *" : "Thana / Area *"}
                       </label>
                       <input
                         type="text"
                         required
                         value={thana}
                         onChange={(e) => setThana(e.target.value)}
-                        placeholder={lang === "bn" ? "যেমন: ধানমন্ডি / গুলশান" : "e.g. Dhanmondi, Gulshan"}
+                        placeholder={lang === "bn" ? "যেমন: ধানমন্ডি / গুলশান / উত্তরা" : "e.g. Dhanmondi, Gulshan, Uttara"}
                         className="w-full h-11 px-3.5 rounded-card bg-[#F8F1F3] border border-line text-ink outline-none focus:border-rose text-xs"
                       />
                     </div>
@@ -271,7 +513,7 @@ export default function CheckoutPage() {
                         rows={2}
                         value={streetAddress}
                         onChange={(e) => setStreetAddress(e.target.value)}
-                        placeholder={lang === "bn" ? "বাড়ি নং, রোড নং, এলাকা..." : "House, Road, Block/Sector details..."}
+                        placeholder={lang === "bn" ? "বাড়ি নং, রোড নং, ব্লক/সেক্টর ও ল্যান্ডমার্ক..." : "House, Road, Block/Sector, landmark details..."}
                         className="w-full p-3 rounded-card bg-[#F8F1F3] border border-line text-ink outline-none focus:border-rose text-xs"
                       />
                     </div>
@@ -482,13 +724,22 @@ export default function CheckoutPage() {
                 {/* Submit Order Button */}
                 <button
                   type="submit"
-                  disabled={items.length === 0}
+                  disabled={items.length === 0 || isSubmitting}
                   className="w-full h-13 rounded-pill bg-ink hover:bg-rose text-white font-bold text-sm inline-flex items-center justify-center gap-2 shadow-pill transition-all disabled:opacity-50"
                 >
-                  <Lock className="w-4 h-4" />
-                  <span>
-                    {lang === "bn" ? "অর্ডার নিশ্চিত করুন" : "Confirm & Place Order"}
-                  </span>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>{lang === "bn" ? "অর্ডার প্রক্রিয়া করা হচ্ছে..." : "Processing Order..."}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="w-4 h-4" />
+                      <span>
+                        {lang === "bn" ? "অর্ডার নিশ্চিত করুন" : "Confirm & Place Order"}
+                      </span>
+                    </>
+                  )}
                 </button>
 
                 <div className="flex flex-col gap-2 text-[11px] text-muted pt-2 border-t border-line">
