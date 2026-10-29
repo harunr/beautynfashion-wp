@@ -829,14 +829,14 @@ class ABF_Store_Customizer {
                     update_user_meta( $new_id, 'billing_phone', $phone );
                     $new_user = get_userdata( $new_id );
                     $auth_token = $this->generate_auth_token( $new_user );
-                    $user_data = $this->format_customer_response( $new_user );
+                    $user_data = $this->format_customer_data( $new_user );
                 }
             } else {
                 $existing_user = wp_authenticate( $email, $account_password );
                 if ( ! is_wp_error( $existing_user ) ) {
                     $customer_id = $existing_user->ID;
                     $auth_token = $this->generate_auth_token( $existing_user );
-                    $user_data = $this->format_customer_response( $existing_user );
+                    $user_data = $this->format_customer_data( $existing_user );
                 }
             }
         }
