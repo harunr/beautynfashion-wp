@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Search, User, Heart, ShoppingBag, Menu, X, ArrowRight } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/context";
 import { useCart } from "@/lib/cart/context";
+import { useAuth } from "@/lib/auth/context";
 import { useStoreSettings } from "@/lib/wordpress/context";
 
 interface HeaderProps {
@@ -18,6 +19,7 @@ export default function Header({ onOpenMobileMenu, cartCount }: HeaderProps) {
   const router = useRouter();
   const { lang, setLang, t, toBnDigits } = useLanguage();
   const { itemsCount, openCart, wishlistIds } = useCart();
+  const { user, isLoggedIn } = useAuth();
   const settings = useStoreSettings();
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -175,10 +177,14 @@ export default function Header({ onOpenMobileMenu, cartCount }: HeaderProps) {
             {/* Account Icon */}
             <Link
               href="/account"
-              aria-label={t.nav.account}
-              className="p-2 rounded-full hover:bg-blush-100 text-ink transition-colors hidden sm:inline-flex"
+              aria-label={isLoggedIn && user ? `${user.name} (${t.nav.account})` : t.nav.account}
+              title={isLoggedIn && user ? user.name : t.nav.account}
+              className="relative p-2 rounded-full hover:bg-blush-100 text-ink transition-colors hidden sm:inline-flex items-center"
             >
               <User className="w-5 h-5" />
+              {isLoggedIn && (
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white" />
+              )}
             </Link>
 
             {/* Wishlist Icon with Counter */}
@@ -322,7 +328,12 @@ export default function Header({ onOpenMobileMenu, cartCount }: HeaderProps) {
                   className="flex items-center gap-2 text-sm font-semibold text-ink hover:text-rose p-2 rounded-lg bg-white border border-line/60"
                 >
                   <User className="w-4 h-4 text-muted" />
-                  <span>{t.nav.account}</span>
+                  <span className="truncate">
+                    {isLoggedIn && user ? user.name.split(" ")[0] : t.nav.account}
+                  </span>
+                  {isLoggedIn && (
+                    <span className="ml-auto w-2 h-2 rounded-full bg-emerald-500" />
+                  )}
                 </Link>
               </div>
               <p className="text-[11px] text-muted">

@@ -226,6 +226,49 @@ class ABF_Store_Customizer {
                 return current_user_can( 'manage_options' );
             },
         ] );
+
+        // Customer Authentication & Account APIs
+        register_rest_route( 'abf/v1', '/auth/login', [
+            'methods'  => 'POST',
+            'callback' => [ $this, 'handle_auth_login' ],
+            'permission_callback' => '__return_true',
+        ] );
+
+        register_rest_route( 'abf/v1', '/auth/register', [
+            'methods'  => 'POST',
+            'callback' => [ $this, 'handle_auth_register' ],
+            'permission_callback' => '__return_true',
+        ] );
+
+        register_rest_route( 'abf/v1', '/auth/forgot-password', [
+            'methods'  => 'POST',
+            'callback' => [ $this, 'handle_auth_forgot_password' ],
+            'permission_callback' => '__return_true',
+        ] );
+
+        register_rest_route( 'abf/v1', '/auth/reset-password', [
+            'methods'  => 'POST',
+            'callback' => [ $this, 'handle_auth_reset_password' ],
+            'permission_callback' => '__return_true',
+        ] );
+
+        register_rest_route( 'abf/v1', '/auth/me', [
+            'methods'  => 'GET',
+            'callback' => [ $this, 'handle_auth_me' ],
+            'permission_callback' => '__return_true',
+        ] );
+
+        register_rest_route( 'abf/v1', '/auth/update-profile', [
+            'methods'  => 'POST',
+            'callback' => [ $this, 'handle_auth_update_profile' ],
+            'permission_callback' => '__return_true',
+        ] );
+
+        register_rest_route( 'abf/v1', '/auth/orders', [
+            'methods'  => 'GET',
+            'callback' => [ $this, 'handle_auth_orders' ],
+            'permission_callback' => '__return_true',
+        ] );
     }
 
     /**
@@ -291,6 +334,431 @@ class ABF_Store_Customizer {
             'message' => 'Thank you! Your message has been received. Our beauty concierge will get in touch shortly.',
             'inquiry_id' => $inquiry['id'],
         ] );
+    }
+
+    /**
+     * Generate secure stateless token for customer session
+     */
+    public function generate_auth_token( $user ) {
+        $hash = wp_hash( $user->ID . '|' . $user->user_pass . '|' . wp_salt( 'auth' ) );
+        return base64_encode( $user->ID . ':' . $hash );
+    }
+
+    /**
+     * Verify customer auth token
+     */
+    public function verify_auth_token( $token ) {
+        if ( empty( $token ) ) return false;
+        $decoded = base64_decode( $token, true );
+        if ( ! $decoded || strpos( $decoded, ':' ) === false ) return false;
+        list( $user_id, $hash ) = explode( ':', $decoded, 2 );
+        $user = get_user_by( 'id', (int) $user_id );
+        if ( ! $user ) return false;
+        $expected = wp_hash( $user->ID . '|' . $user->user_pass . '|' . wp_salt( 'auth' ) );
+        if ( hash_equals( $expected, $hash ) ) {
+            return $user;
+        }
+        return false;
+    }
+
+    /**
+     * Format unified customer data object
+     */
+    public function format_customer_data( $user ) {
+        $user_id = $user->ID;
+        $first_name = get_user_meta( $user_id, 'first_name', true );
+        $last_name  = get_user_meta( $user_id, 'last_name', true );
+        $phone      = get_user_meta( $user_id, 'billing_phone', true );
+
+        $billing = [
+            'first_name' => $first_name ?: get_user_meta( $user_id, 'billing_first_name', true ),
+            'last_name'  => $last_name ?: get_user_meta( $user_id, 'billing_last_name', true ),
+            'phone'      => $phone,
+            'email'      => $user->user_email,
+            'address_1'  => get_user_meta( $user_id, 'billing_address_1', true ),
+            'city'       => get_user_meta( $user_id, 'billing_city', true ),
+            'state'      => get_user_meta( $user_id, 'billing_state', true ),
+            'postcode'   => get_user_meta( $user_id, 'billing_postcode', true ),
+            'country'    => get_user_meta( $user_id, 'billing_country', true ) ?: 'BD',
+        ];
+
+        $shipping = [
+            'first_name' => get_user_meta( $user_id, 'shipping_first_name', true ) ?: $billing['first_name'],
+            'last_name'  => get_user_meta( $user_id, 'shipping_last_name', true ) ?: $billing['last_name'],
+            'address_1'  => get_user_meta( $user_id, 'shipping_address_1', true ) ?: $billing['address_1'],
+            'city'       => get_user_meta( $user_id, 'shipping_city', true ) ?: $billing['city'],
+            'state'      => get_user_meta( $user_id, 'shipping_state', true ) ?: $billing['state'],
+            'postcode'   => get_user_meta( $user_id, 'shipping_postcode', true ) ?: $billing['postcode'],
+            'country'    => get_user_meta( $user_id, 'shipping_country', true ) ?: 'BD',
+        ];
+
+        return [
+            'id'          => $user_id,
+            'name'        => trim( $user->display_name ?: ( $first_name . ' ' . $last_name ) ) ?: $user->user_login,
+            'firstName'   => $first_name,
+            'lastName'    => $last_name,
+            'email'       => $user->user_email,
+            'phone'       => $phone,
+            'username'    => $user->user_login,
+            'registered'  => $user->user_registered,
+            'billing'     => $billing,
+            'shipping'    => $shipping,
+        ];
+    }
+
+    /**
+     * REST: Handle customer login
+     */
+    public function handle_auth_login( $request ) {
+        $params = $request->get_json_params() ?: $request->get_body_params();
+        $identifier = sanitize_text_field( trim( $params['identifier'] ?? $params['email'] ?? '' ) );
+        $password   = $params['password'] ?? '';
+
+        if ( empty( $identifier ) || empty( $password ) ) {
+            return new WP_Error( 'missing_fields', 'Please enter your email or phone and password.', [ 'status' => 400 ] );
+        }
+
+        $user = null;
+        if ( is_email( $identifier ) ) {
+            $user = get_user_by( 'email', $identifier );
+        } else {
+            $user = get_user_by( 'login', $identifier );
+            if ( ! $user ) {
+                $users = get_users( [
+                    'meta_key'   => 'billing_phone',
+                    'meta_value' => $identifier,
+                    'number'     => 1,
+                ] );
+                if ( ! empty( $users ) ) {
+                    $user = $users[0];
+                }
+            }
+        }
+
+        if ( ! $user || ! wp_check_password( $password, $user->user_pass, $user->ID ) ) {
+            return new WP_Error( 'invalid_credentials', 'The email or password you entered is incorrect.', [ 'status' => 401 ] );
+        }
+
+        $token = $this->generate_auth_token( $user );
+        $customer = $this->format_customer_data( $user );
+
+        return rest_ensure_response( [
+            'success' => true,
+            'token'   => $token,
+            'user'    => $customer,
+            'message' => 'Signed in successfully',
+        ] );
+    }
+
+    /**
+     * REST: Handle customer registration
+     */
+    public function handle_auth_register( $request ) {
+        $params = $request->get_json_params() ?: $request->get_body_params();
+        $name     = sanitize_text_field( trim( $params['name'] ?? '' ) );
+        $email    = sanitize_email( trim( $params['email'] ?? '' ) );
+        $phone    = sanitize_text_field( trim( $params['phone'] ?? '' ) );
+        $password = $params['password'] ?? '';
+
+        if ( empty( $name ) || empty( $email ) || empty( $password ) ) {
+            return new WP_Error( 'missing_fields', 'Please provide your full name, email, and password.', [ 'status' => 400 ] );
+        }
+
+        if ( ! is_email( $email ) ) {
+            return new WP_Error( 'invalid_email', 'Please provide a valid email address.', [ 'status' => 400 ] );
+        }
+
+        if ( strlen( $password ) < 6 ) {
+            return new WP_Error( 'weak_password', 'Password must be at least 6 characters long.', [ 'status' => 400 ] );
+        }
+
+        if ( email_exists( $email ) ) {
+            return new WP_Error( 'email_exists', 'An account with this email address already exists. Please sign in.', [ 'status' => 409 ] );
+        }
+
+        $username_base = sanitize_user( current( explode( '@', $email ) ), true );
+        $username = $username_base;
+        $counter = 1;
+        while ( username_exists( $username ) ) {
+            $username = $username_base . '_' . $counter;
+            $counter++;
+        }
+
+        $parts = explode( ' ', $name, 2 );
+        $first_name = $parts[0] ?? '';
+        $last_name  = $parts[1] ?? '';
+
+        $user_id = wp_insert_user( [
+            'user_login'   => $username,
+            'user_pass'    => $password,
+            'user_email'   => $email,
+            'display_name' => $name,
+            'first_name'   => $first_name,
+            'last_name'    => $last_name,
+            'role'         => 'customer',
+        ] );
+
+        if ( is_wp_error( $user_id ) ) {
+            return $user_id;
+        }
+
+        if ( ! empty( $phone ) ) {
+            update_user_meta( $user_id, 'billing_phone', $phone );
+        }
+        update_user_meta( $user_id, 'billing_email', $email );
+        update_user_meta( $user_id, 'billing_first_name', $first_name );
+        update_user_meta( $user_id, 'billing_last_name', $last_name );
+
+        $user = get_user_by( 'id', $user_id );
+        $token = $this->generate_auth_token( $user );
+        $customer = $this->format_customer_data( $user );
+
+        return rest_ensure_response( [
+            'success' => true,
+            'token'   => $token,
+            'user'    => $customer,
+            'message' => 'Account created successfully',
+        ] );
+    }
+
+    /**
+     * REST: Handle forgot password request
+     */
+    public function handle_auth_forgot_password( $request ) {
+        $params = $request->get_json_params() ?: $request->get_body_params();
+        $identifier = sanitize_text_field( trim( $params['identifier'] ?? $params['email'] ?? '' ) );
+
+        if ( empty( $identifier ) ) {
+            return new WP_Error( 'missing_fields', 'Please enter your email address.', [ 'status' => 400 ] );
+        }
+
+        $user = null;
+        if ( is_email( $identifier ) ) {
+            $user = get_user_by( 'email', $identifier );
+        } else {
+            $user = get_user_by( 'login', $identifier );
+        }
+
+        if ( ! $user ) {
+            return rest_ensure_response( [
+                'success' => true,
+                'message' => 'If an account matches this email, a password reset link has been sent.',
+            ] );
+        }
+
+        $key = get_password_reset_key( $user );
+        if ( is_wp_error( $key ) ) {
+            return new WP_Error( 'key_error', 'Unable to initiate password reset at this time.', [ 'status' => 500 ] );
+        }
+
+        $reset_url = 'https://abeautynfashion.com/account/reset-password?key=' . rawurlencode( $key ) . '&login=' . rawurlencode( $user->user_login );
+
+        $subject = '[ABeauty & Fashion] Password Reset Request';
+        $message = "Hello " . $user->display_name . ",\n\n"
+                 . "We received a request to reset your password for your ABeauty & Fashion account.\n\n"
+                 . "Click the link below to set a new password:\n"
+                 . $reset_url . "\n\n"
+                 . "If you didn't request a password reset, you can safely ignore this email.\n\n"
+                 . "Warm regards,\n"
+                 . "The ABeauty & Fashion Concierge Team\n"
+                 . "https://abeautynfashion.com";
+
+        wp_mail( $user->user_email, $subject, $message );
+
+        return rest_ensure_response( [
+            'success' => true,
+            'message' => 'Password reset instructions have been sent to your email address.',
+        ] );
+    }
+
+    /**
+     * REST: Handle password reset completion
+     */
+    public function handle_auth_reset_password( $request ) {
+        $params = $request->get_json_params() ?: $request->get_body_params();
+        $key      = sanitize_text_field( $params['key'] ?? '' );
+        $login    = sanitize_text_field( $params['login'] ?? '' );
+        $password = $params['password'] ?? '';
+
+        if ( empty( $key ) || empty( $login ) || empty( $password ) ) {
+            return new WP_Error( 'missing_fields', 'Invalid request. Missing reset parameters.', [ 'status' => 400 ] );
+        }
+
+        if ( strlen( $password ) < 6 ) {
+            return new WP_Error( 'weak_password', 'Password must be at least 6 characters long.', [ 'status' => 400 ] );
+        }
+
+        $user = check_password_reset_key( $key, $login );
+        if ( is_wp_error( $user ) ) {
+            return new WP_Error( 'invalid_key', 'This password reset link is invalid or has expired. Please request a new one.', [ 'status' => 400 ] );
+        }
+
+        reset_password( $user, $password );
+
+        return rest_ensure_response( [
+            'success' => true,
+            'message' => 'Your password has been reset successfully! You can now sign in.',
+        ] );
+    }
+
+    /**
+     * REST: Get current customer profile
+     */
+    public function handle_auth_me( $request ) {
+        $auth_header = $request->get_header( 'authorization' );
+        $token = str_replace( 'Bearer ', '', $auth_header );
+        if ( empty( $token ) ) {
+            $token = $request->get_param( 'token' );
+        }
+
+        $user = $this->verify_auth_token( $token );
+        if ( ! $user ) {
+            return new WP_Error( 'unauthorized', 'Session expired. Please sign in.', [ 'status' => 401 ] );
+        }
+
+        return rest_ensure_response( [
+            'success' => true,
+            'user'    => $this->format_customer_data( $user ),
+        ] );
+    }
+
+    /**
+     * REST: Update customer profile and addresses
+     */
+    public function handle_auth_update_profile( $request ) {
+        $auth_header = $request->get_header( 'authorization' );
+        $token = str_replace( 'Bearer ', '', $auth_header );
+        $params = $request->get_json_params() ?: $request->get_body_params();
+        if ( empty( $token ) && ! empty( $params['token'] ) ) {
+            $token = $params['token'];
+        }
+
+        $user = $this->verify_auth_token( $token );
+        if ( ! $user ) {
+            return new WP_Error( 'unauthorized', 'Session expired. Please sign in.', [ 'status' => 401 ] );
+        }
+
+        $user_id = $user->ID;
+
+        if ( ! empty( $params['name'] ) ) {
+            $name = sanitize_text_field( $params['name'] );
+            $parts = explode( ' ', $name, 2 );
+            wp_update_user( [
+                'ID'           => $user_id,
+                'display_name' => $name,
+                'first_name'   => $parts[0] ?? '',
+                'last_name'    => $parts[1] ?? '',
+            ] );
+            update_user_meta( $user_id, 'first_name', $parts[0] ?? '' );
+            update_user_meta( $user_id, 'last_name', $parts[1] ?? '' );
+        }
+
+        if ( isset( $params['phone'] ) ) {
+            update_user_meta( $user_id, 'billing_phone', sanitize_text_field( $params['phone'] ) );
+        }
+
+        if ( ! empty( $params['billing'] ) && is_array( $params['billing'] ) ) {
+            $b = $params['billing'];
+            if ( isset( $b['address_1'] ) ) update_user_meta( $user_id, 'billing_address_1', sanitize_text_field( $b['address_1'] ) );
+            if ( isset( $b['city'] ) ) update_user_meta( $user_id, 'billing_city', sanitize_text_field( $b['city'] ) );
+            if ( isset( $b['postcode'] ) ) update_user_meta( $user_id, 'billing_postcode', sanitize_text_field( $b['postcode'] ) );
+        }
+
+        if ( ! empty( $params['shipping'] ) && is_array( $params['shipping'] ) ) {
+            $s = $params['shipping'];
+            if ( isset( $s['address_1'] ) ) update_user_meta( $user_id, 'shipping_address_1', sanitize_text_field( $s['address_1'] ) );
+            if ( isset( $s['city'] ) ) update_user_meta( $user_id, 'shipping_city', sanitize_text_field( $s['city'] ) );
+            if ( isset( $s['postcode'] ) ) update_user_meta( $user_id, 'shipping_postcode', sanitize_text_field( $s['postcode'] ) );
+        }
+
+        if ( ! empty( $params['new_password'] ) ) {
+            $current_pass = $params['current_password'] ?? '';
+            if ( empty( $current_pass ) || ! wp_check_password( $current_pass, $user->user_pass, $user_id ) ) {
+                return new WP_Error( 'invalid_password', 'Current password is incorrect.', [ 'status' => 400 ] );
+            }
+            if ( strlen( $params['new_password'] ) < 6 ) {
+                return new WP_Error( 'weak_password', 'New password must be at least 6 characters long.', [ 'status' => 400 ] );
+            }
+            wp_set_password( $params['new_password'], $user_id );
+        }
+
+        $fresh_user = get_user_by( 'id', $user_id );
+        return rest_ensure_response( [
+            'success' => true,
+            'token'   => $this->generate_auth_token( $fresh_user ),
+            'user'    => $this->format_customer_data( $fresh_user ),
+            'message' => 'Profile updated successfully',
+        ] );
+    }
+
+    /**
+     * REST: Get customer WooCommerce orders
+     */
+    public function handle_auth_orders( $request ) {
+        $auth_header = $request->get_header( 'authorization' );
+        $token = str_replace( 'Bearer ', '', $auth_header );
+        if ( empty( $token ) ) {
+            $token = $request->get_param( 'token' );
+        }
+
+        $user = $this->verify_auth_token( $token );
+        if ( ! $user ) {
+            return new WP_Error( 'unauthorized', 'Session expired. Please sign in.', [ 'status' => 401 ] );
+        }
+
+        if ( ! function_exists( 'wc_get_orders' ) ) {
+            return rest_ensure_response( [] );
+        }
+
+        $wc_orders = wc_get_orders( [
+            'customer_id' => $user->ID,
+            'limit'       => 50,
+            'orderby'     => 'date',
+            'order'       => 'DESC',
+        ] );
+
+        if ( empty( $wc_orders ) && ! empty( $user->user_email ) ) {
+            $wc_orders = wc_get_orders( [
+                'billing_email' => $user->user_email,
+                'limit'         => 50,
+                'orderby'       => 'date',
+                'order'         => 'DESC',
+            ] );
+        }
+
+        $formatted = [];
+        foreach ( $wc_orders as $o ) {
+            $items = [];
+            foreach ( $o->get_items() as $item ) {
+                $product = $item->get_product();
+                $img_url = '';
+                if ( $product && $product->get_image_id() ) {
+                    $img_url = wp_get_attachment_image_url( $product->get_image_id(), 'thumbnail' );
+                }
+                $items[] = [
+                    'name'     => $item->get_name(),
+                    'quantity' => $item->get_quantity(),
+                    'total'    => (float) $item->get_total(),
+                    'image'    => $img_url,
+                ];
+            }
+
+            $date_created = $o->get_date_created();
+            $formatted[] = [
+                'id'            => 'ABF-' . $o->get_id(),
+                'orderNumber'   => $o->get_order_number(),
+                'date'          => $date_created ? $date_created->date( 'M j, Y' ) : '',
+                'status'        => $o->get_status(),
+                'statusLabel'   => wc_get_order_status_name( $o->get_status() ),
+                'total'         => (float) $o->get_total(),
+                'currency'      => $o->get_currency(),
+                'paymentMethod' => $o->get_payment_method_title(),
+                'itemsCount'    => count( $items ),
+                'items'         => $items,
+            ];
+        }
+
+        return rest_ensure_response( $formatted );
     }
 
     /**

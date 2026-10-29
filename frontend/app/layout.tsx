@@ -8,6 +8,7 @@ import {
 } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/lib/i18n/context";
+import { AuthProvider } from "@/lib/auth/context";
 import { CartProvider } from "@/lib/cart/context";
 import CartDrawer from "@/components/cart/CartDrawer";
 import SupportChat from "@/components/chat/SupportChat";
@@ -115,13 +116,15 @@ export default async function RootLayout({
         className={`${bricolage.variable} ${dmSans.variable} ${instrumentSerif.variable} ${anekBangla.variable} ${hindSiliguri.variable} antialiased`}
       >
         <StoreSettingsProvider initialSettings={storeSettings}>
-          <LanguageProvider>
-            <CartProvider>
-              {children}
-              <CartDrawer />
-              <SupportChat />
-            </CartProvider>
-          </LanguageProvider>
+          <AuthProvider>
+            <LanguageProvider>
+              <CartProvider>
+                {children}
+                <CartDrawer />
+                <SupportChat />
+              </CartProvider>
+            </LanguageProvider>
+          </AuthProvider>
         </StoreSettingsProvider>
       </body>
     </html>
