@@ -422,10 +422,10 @@ export default function CartPage() {
                 {/* Checkout CTA */}
                 <Link
                   href="/checkout"
-                  className="w-full h-13 rounded-pill bg-ink hover:bg-rose text-white font-bold text-sm inline-flex items-center justify-center gap-2 shadow-pill transition-all"
+                  className="w-full h-14 md:h-16 min-h-[56px] py-4 px-6 rounded-pill bg-ink hover:bg-rose text-white font-bold text-base md:text-lg inline-flex items-center justify-center gap-2.5 shadow-pill hover:shadow-card transition-all"
                 >
                   <span>{lang === "bn" ? "চেকআউটে এগিয়ে যান" : "Proceed to Checkout"}</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-5 h-5" />
                 </Link>
 
                 <p className="text-[11px] text-muted text-center flex items-center justify-center gap-1.5">

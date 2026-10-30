@@ -62,6 +62,18 @@ const config: Config = {
       maxWidth: {
         container: "1328px",
       },
+      height: {
+        13: "3.25rem",
+        14: "3.5rem",
+        15: "3.75rem",
+        16: "4rem",
+      },
+      minHeight: {
+        13: "3.25rem",
+        14: "3.5rem",
+        15: "3.75rem",
+        16: "4rem",
+      },
       boxShadow: {
         modal: "0 40px 80px -30px rgba(20, 8, 14, 0.6)",
         card: "0 24px 48px -20px rgba(58, 24, 48, 0.35)",

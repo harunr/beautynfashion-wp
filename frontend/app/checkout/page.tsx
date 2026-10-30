@@ -725,16 +725,16 @@ export default function CheckoutPage() {
                 <button
                   type="submit"
                   disabled={items.length === 0 || isSubmitting}
-                  className="w-full h-13 rounded-pill bg-ink hover:bg-rose text-white font-bold text-sm inline-flex items-center justify-center gap-2 shadow-pill transition-all disabled:opacity-50"
+                  className="w-full h-14 md:h-16 min-h-[56px] md:min-h-[60px] py-4 px-6 rounded-pill bg-ink hover:bg-rose text-white font-bold text-base md:text-lg inline-flex items-center justify-center gap-2.5 shadow-pill hover:shadow-card transition-all disabled:opacity-50 active:scale-[0.99] cursor-pointer"
                 >
                   {isSubmitting ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <Loader2 className="w-5 h-5 animate-spin" />
                       <span>{lang === "bn" ? "অর্ডার প্রক্রিয়া করা হচ্ছে..." : "Processing Order..."}</span>
                     </>
                   ) : (
                     <>
-                      <Lock className="w-4 h-4" />
+                      <Lock className="w-5 h-5 shrink-0" />
                       <span>
                         {lang === "bn" ? "অর্ডার নিশ্চিত করুন" : "Confirm & Place Order"}
                       </span>
